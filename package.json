@@ -24,7 +24,7 @@
     "playground": "npm run pg:build && node e2e/server.mjs",
     "bench": "npm run build && node bench/perf.mjs",
     "size": "node bench/size.mjs",
-    "site:build": "node docs/build.mjs",
+    "site:build": "npm run build && node docs/build.mjs",
     "site:deploy": "npm run site:build && npx wrangler pages deploy site --project-name=hmml",
     "test": "vitest run",
     "test:browser": "npm run build && playwright test",
