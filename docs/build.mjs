@@ -74,10 +74,11 @@ function page({ title, description, body, toc, active }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title} · HMML</title>
+<title>${title}</title>
 <meta name="description" content="${description}">
-<meta property="og:title" content="${title} · HMML">
+<meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
+<meta name="twitter:card" content="summary">
 <style>${THEME}</style>
 </head>
 <body>
@@ -154,7 +155,7 @@ await mkdir(out, { recursive: true });
 await writeFile(
   join(out, "index.html"),
   await render(join(root, "README.md"), {
-    title: "HMML",
+    title: "HMML — HyperMedia Markup Language",
     description: pkg.description,
     active: "index",
   }),
@@ -163,7 +164,7 @@ await writeFile(
 await writeFile(
   join(out, "spec.html"),
   await render(join(root, "SPEC.md"), {
-    title: "Specification",
+    title: "HMML Specification (v1)",
     description: "HMML binary format specification (v1).",
     active: "spec",
   }),
