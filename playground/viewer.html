@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HMML viewer</title>
+    <style>
+      body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0b1020; color: #e7ecf5; }
+      header { padding: 20px 28px; border-bottom: 1px solid #1c2747; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+      header h1 { font-size: 17px; margin: 0; }
+      header a { color: #9fb4ff; font-size: 13px; text-decoration: none; }
+      .layout { display: grid; grid-template-columns: 320px 1fr; gap: 0; min-height: calc(100vh - 62px); }
+      .side { padding: 22px 24px; border-right: 1px solid #1c2747; }
+      #drop {
+        border: 1.5px dashed #36456f; border-radius: 14px; padding: 28px 18px; text-align: center;
+        color: #93a4c3; font-size: 14px; cursor: pointer; transition: all .15s; background: #0e1530;
+      }
+      #drop.hot { border-color: #6f8cff; color: #cdd8f5; background: #141d3c; }
+      #drop input { display: none; }
+      #stats { margin-top: 22px; display: none; grid-template-columns: max-content 1fr; gap: 4px 14px; font: 12.5px/1.5 ui-monospace, Menlo, monospace; }
+      #stats b { color: #9fb4ff; }
+      .ok { color: #57d9a3; }
+      #actions { margin-top: 18px; display: none; gap: 10px; }
+      button { font: inherit; font-size: 13px; padding: 8px 12px; border-radius: 9px; border: 1px solid #2d3a63; background: #1b2340; color: #e7ecf5; cursor: pointer; }
+      button:hover { border-color: #4a5e9e; }
+      .stage-wrap { padding: 0; overflow: auto; }
+      #stage { min-height: 100%; }
+      #stage:empty::after { content: "← drop a .hmml file, or add ?file=files/gradient.hmml"; display: grid; place-items: center; min-height: calc(100vh - 62px); color: #54618a; font-size: 14px; }
+      .err { color: #ff8a8a; font: 12.5px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap; margin-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>HMML viewer</h1>
+      <a href="index.html">← gallery</a>
+      <a href="create.html">make your own →</a>
+    </header>
+    <div class="layout">
+      <aside class="side">
+        <label id="drop">
+          <strong>Drop a .hmml file here</strong><br />or click to choose
+          <input type="file" id="file" accept=".hmml,application/octet-stream" />
+        </label>
+        <div id="stats"></div>
+        <div id="actions">
+          <button id="dlHtml">Download as .html</button>
+        </div>
+        <div id="err" class="err"></div>
+      </aside>
+      <main class="stage-wrap"><div id="stage"></div></main>
+    </div>
+
+    <script src="../dist/index.global.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => n.toLocaleString() + " B";
+      let lastDoc = null;
+      let lastRevoke = null;
+
+      async function render(bytes, sourceName) {
+        $("err").textContent = "";
+        if (lastRevoke) { lastRevoke(); lastRevoke = null; }
+        let doc;
+        try {
+          doc = await HMML.decode(bytes);
+        } catch (e) {
+          $("stage").innerHTML = "";
+          $("err").textContent = "Could not decode: " + (e && e.message ? e.message : e);
+          return;
+        }
+        lastDoc = doc;
+        const out = doc.createObjectUrls();
+        lastRevoke = out.revoke;
+        $("stage").innerHTML = out.html;
+
+        const inlined = new TextEncoder().encode(doc.toHTML()).length;
+        const savings = (100 * (1 - bytes.length / inlined)).toFixed(1);
+        $("stats").style.display = "grid";
+        $("stats").innerHTML =
+          `<b>source</b><span>${sourceName || "(dropped)"}</span>` +
+          `<b>hmml size</b><span>${fmt(bytes.length)}</span>` +
+          `<b>inlined html</b><span>${fmt(inlined)}</span>` +
+          `<b>savings</b><span class="ok">${savings}%</span>` +
+          `<b>resources</b><span>${doc.resources.size}</span>` +
+          `<b>codec id</b><span>${doc.codecId}</span>` +
+          `<b>meta</b><span>${escapeHtml(JSON.stringify(doc.meta))}</span>`;
+        $("actions").style.display = "flex";
+      }
+
+      function escapeHtml(s) { return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+      // --- drag & drop / file input (works from file://) ---
+      const drop = $("drop");
+      ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("hot"); }));
+      ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("hot"); }));
+      drop.addEventListener("drop", async (e) => {
+        const f = e.dataTransfer.files[0];
+        if (f) render(new Uint8Array(await f.arrayBuffer()), f.name);
+      });
+      $("file").addEventListener("change", async (e) => {
+        const f = e.target.files[0];
+        if (f) render(new Uint8Array(await f.arrayBuffer()), f.name);
+      });
+
+      // --- download current doc as standalone html ---
+      $("dlHtml").addEventListener("click", () => {
+        if (!lastDoc) return;
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>HMML export</title></head><body>${lastDoc.toHTML()}</body></html>`;
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+        const a = document.createElement("a");
+        a.href = url; a.download = "export.html"; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      // --- ?file=files/x.hmml (requires serving over http, e.g. `npm run playground`) ---
+      const param = new URLSearchParams(location.search).get("file");
+      if (param) {
+        fetch(param)
+          .then((r) => { if (!r.ok) throw new Error(r.status + " " + r.statusText); return r.arrayBuffer(); })
+          .then((b) => render(new Uint8Array(b), param))
+          .catch((e) => { $("err").textContent = "fetch failed (" + e.message + ").\nOver file:// use drag-and-drop instead, or run `npm run playground`."; });
+      }
+    </script>
+  </body>
+</html>

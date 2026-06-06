@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HMML playground</title>
+    <style>
+      body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0b1020; color: #e7ecf5; }
+      header { padding: 28px; border-bottom: 1px solid #1c2747; }
+      header h1 { margin: 0 0 4px; font-size: 22px; }
+      header p { margin: 0; color: #93a4c3; font-size: 14px; }
+      header .links { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+      header a.btn { color: #cdd8f5; font-size: 13px; text-decoration: none; border: 1px solid #2d3a63; background: #1b2340; padding: 8px 13px; border-radius: 9px; }
+      header a.btn:hover { border-color: #4a5e9e; }
+      .note { margin: 18px 28px 0; padding: 12px 16px; border: 1px solid #3a2d18; background: #1f1809; border-radius: 10px; color: #e7c98a; font-size: 13px; display: none; }
+      .grid { padding: 24px 28px 60px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+      .item { background: #131a30; border: 1px solid #243155; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+      .item .thumb { aspect-ratio: 16/10; background: #0e1530; display: block; overflow: hidden; }
+      .item .thumb iframe { width: 200%; height: 200%; border: 0; pointer-events: none; transform: scale(0.5); transform-origin: top left; }
+      .item .body { padding: 14px 16px; }
+      .item h3 { margin: 0 0 8px; font-size: 15px; }
+      .item dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font: 12px/1.4 ui-monospace, Menlo, monospace; color: #9fb4ff; }
+      .item .savings { color: #57d9a3; }
+      .item .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+      .item a { font-size: 12.5px; text-decoration: none; color: #cdd8f5; border: 1px solid #2d3a63; padding: 6px 10px; border-radius: 8px; }
+      .item a:hover { border-color: #4a5e9e; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>HMML playground</h1>
+      <p>Real <code>.hmml</code> files and standalone HTML pages — open, inspect, drop, and remix.</p>
+      <div class="links">
+        <a class="btn" href="viewer.html">Open viewer (drag a .hmml)</a>
+        <a class="btn" href="create.html">Make your own</a>
+      </div>
+    </header>
+    <div class="note" id="note"></div>
+    <div class="grid" id="grid"></div>
+
+    <script>
+      const fmt = (n) => n.toLocaleString() + " B";
+      fetch("files/manifest.json")
+        .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then((m) => {
+          const grid = document.getElementById("grid");
+          grid.innerHTML = m.files
+            .map(
+              (f) => `
+            <div class="item">
+              <a class="thumb" href="${f.html}" title="open standalone HTML">
+                <iframe src="${f.html}" loading="lazy" scrolling="no" tabindex="-1"></iframe>
+              </a>
+              <div class="body">
+                <h3>${f.name}</h3>
+                <dl>
+                  <dt>type</dt><dd>${f.mime}</dd>
+                  <dt>.hmml</dt><dd>${fmt(f.hmmlBytes)}</dd>
+                  <dt>html</dt><dd>${fmt(f.inlinedHtmlBytes)}</dd>
+                  <dt>saved</dt><dd class="savings">${f.savingsPct}%</dd>
+                  <dt>res</dt><dd>${f.resources}</dd>
+                </dl>
+                <div class="actions">
+                  <a href="viewer.html?file=${encodeURIComponent(f.hmml)}">view</a>
+                  <a href="${f.html}">open .html</a>
+                  <a href="${f.hmml}" download>download .hmml</a>
+                </div>
+              </div>
+            </div>`,
+            )
+            .join("");
+        })
+        .catch(() => {
+          const note = document.getElementById("note");
+          note.style.display = "block";
+          note.innerHTML =
+            "No <code>files/manifest.json</code> yet (or you opened this from <code>file://</code>). " +
+            "Run <code>npm run pg:build</code> to generate the files, then <code>npm run playground</code> to serve this page over http. " +
+            "The <a href='viewer.html' style='color:#e7c98a'>viewer</a> and <a href='create.html' style='color:#e7c98a'>create</a> tools work from file:// directly.";
+        });
+    </script>
+  </body>
+</html>

@@ -6,4 +6,11 @@ dist
 # Playwright
 /test-results
 /playwright-report
-/e2e/render.png
+/e2e/*.png
+
+# Generated playground output (regenerate with `npm run pg:build`).
+# Source images in playground/assets/ ARE committed.
+/playground/files
+/playground/hmml-playground
+/playground/*.zip
+/playground/*.tar.gz

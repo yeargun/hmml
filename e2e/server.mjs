@@ -23,7 +23,13 @@ const TYPES = {
 const server = createServer(async (req, res) => {
   try {
     let p = decodeURIComponent((req.url || "/").split("?")[0]);
-    if (p === "/") p = "/examples/browser/index.html";
+    if (p === "/") {
+      // Redirect so relative URLs on the page resolve under /playground/.
+      res.writeHead(302, { location: "/playground/" });
+      res.end();
+      return;
+    }
+    if (p.endsWith("/")) p += "index.html";
     // Prevent path traversal above the root.
     const safe = normalize(p).replace(/^(\.\.[/\\])+/, "");
     const file = join(root, safe);

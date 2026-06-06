@@ -2,10 +2,14 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: ["src/index.ts"],
-  format: ["esm", "cjs"],
+  // esm + cjs for npm consumers; iife exposes `window.HMML` for plain <script>
+  // tags (so the playground HTML works straight from file://, no bundler).
+  format: ["esm", "cjs", "iife"],
+  globalName: "HMML",
   dts: true,
   clean: true,
   sourcemap: true,
   target: "es2020",
-  outExtension: ({ format }) => ({ js: format === "cjs" ? ".cjs" : ".js" }),
+  outExtension: ({ format }) =>
+    format === "cjs" ? { js: ".cjs" } : format === "iife" ? { js: ".global.js" } : { js: ".js" },
 });

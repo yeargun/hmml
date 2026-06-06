@@ -106,13 +106,32 @@ await encode(input, { codec: fflateCodec });
 await decode(file, { codec: fflateCodec }); // custom id → pass it back in
 ```
 
+## Playground (test it yourself)
+
+A `playground/` folder with real files and pages you can open and poke. See
+[`playground/README.md`](./playground/README.md).
+
+```sh
+npm run pg:build     # generate playground/files/*.hmml + matching standalone *.html
+npm run playground   # build + generate + serve the gallery at http://127.0.0.1:5188
+npm run pg:bundle    # zip a self-contained, file://-openable bundle (no server/npm)
+```
+
+- **Gallery** (`http://127.0.0.1:5188/`) — every doc with size savings and a live preview.
+- **Viewer** (`playground/viewer.html`) — drag a `.hmml` in and render it; works from `file://`.
+- **Create** (`playground/create.html`) — pick images, build & download your own `.hmml`.
+- Each doc also ships as a **double-clickable `playground/files/<name>.html`**.
+- `pg:bundle` produces `playground/hmml-playground.zip` — download it, unzip, and open
+  `index.html`/`viewer.html` straight from your file browser, no tooling required.
+
 ## Development
 
 ```sh
 npm install
-npm run demo       # round-trip + size comparison
-npm test           # vitest
-npm run build      # dual ESM/CJS + .d.ts via tsup
+npm run demo          # node round-trip + size comparison
+npm test              # vitest unit tests
+npm run test:browser  # Playwright: decode & render in real Chromium
+npm run build         # dual ESM/CJS + IIFE global + .d.ts via tsup
 npm run typecheck
 ```
 

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HMML — make your own</title>
+    <style>
+      body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0b1020; color: #e7ecf5; }
+      header { padding: 20px 28px; border-bottom: 1px solid #1c2747; display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+      header h1 { font-size: 17px; margin: 0; }
+      header a { color: #9fb4ff; font-size: 13px; text-decoration: none; }
+      main { padding: 28px; display: grid; grid-template-columns: 360px 1fr; gap: 28px; align-items: start; }
+      .panel { background: #131a30; border: 1px solid #243155; border-radius: 14px; padding: 20px; }
+      #pick { border: 1.5px dashed #36456f; border-radius: 12px; padding: 24px; text-align: center; color: #93a4c3; cursor: pointer; display: block; }
+      #pick input { display: none; }
+      #stats { margin-top: 18px; display: none; grid-template-columns: max-content 1fr; gap: 4px 14px; font: 12.5px/1.5 ui-monospace, Menlo, monospace; }
+      #stats b { color: #9fb4ff; } .ok { color: #57d9a3; }
+      .row { margin-top: 16px; display: none; gap: 10px; }
+      button { font: inherit; font-size: 13px; padding: 9px 13px; border-radius: 9px; border: 1px solid #2d3a63; background: #1b2340; color: #e7ecf5; cursor: pointer; }
+      button:hover { border-color: #4a5e9e; }
+      .stage-wrap { perspective: 1000px; min-height: 320px; }
+      #stage .deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+      #stage figure { margin: 0; background: #1b2340; border: 1px solid #2d3a63; border-radius: 14px; overflow: hidden; transform: rotateX(4deg); }
+      #stage img { display: block; width: 100%; height: auto; }
+      #stage figcaption { padding: 8px 11px; font-size: 12px; color: #9fb4ff; }
+      .err { color: #ff8a8a; font: 12.5px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>HMML — make your own</h1>
+      <a href="index.html">← gallery</a>
+      <a href="viewer.html">viewer →</a>
+    </header>
+    <main>
+      <section class="panel">
+        <label id="pick">
+          <strong>Choose images</strong><br />png · jpeg · webp · gif · svg
+          <input type="file" id="files" accept="image/*" multiple />
+        </label>
+        <div id="stats"></div>
+        <div class="row" id="row">
+          <button id="dlHmml">Download .hmml</button>
+          <button id="dlHtml">Download .html</button>
+        </div>
+        <div id="err" class="err"></div>
+      </section>
+      <section class="stage-wrap"><div id="stage"></div></section>
+    </main>
+
+    <script src="../dist/index.global.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => n.toLocaleString() + " B";
+      let lastFile = null, lastDoc = null, lastRevoke = null;
+
+      $("files").addEventListener("change", async (e) => {
+        const list = [...e.target.files];
+        if (!list.length) return;
+        $("err").textContent = "";
+        try {
+          const imgs = [];
+          for (const f of list) {
+            const bytes = new Uint8Array(await f.arrayBuffer());
+            const mime = f.type || HMML.sniffMime(bytes) || "application/octet-stream";
+            imgs.push({ name: f.name, mime, bytes });
+          }
+          // Build markup with data URIs, then let extract() lift them out.
+          const figures = imgs
+            .map((im) => `<figure><img src="data:${im.mime};base64,${HMML.toBase64(im.bytes)}" alt="${im.name}"><figcaption>${im.name}</figcaption></figure>`)
+            .join("");
+          const markup = `<main class="deck">${figures}</main>`;
+          const { html, resources } = HMML.extract(markup);
+          const file = await HMML.encode({ html, resources, meta: { title: "my document", count: imgs.length } }, { codec: HMML.gzipCodec, crc: true });
+          lastFile = file;
+
+          const doc = await HMML.decode(file);
+          lastDoc = doc;
+          if (lastRevoke) lastRevoke();
+          const out = doc.createObjectUrls();
+          lastRevoke = out.revoke;
+          $("stage").innerHTML = `<div class="deck">${out.html.replace(/^<main class="deck">|<\/main>$/g, "")}</div>`;
+
+          const inlined = new TextEncoder().encode(markup).length;
+          const savings = (100 * (1 - file.length / inlined)).toFixed(1);
+          $("stats").style.display = "grid";
+          $("stats").innerHTML =
+            `<b>images</b><span>${imgs.length}</span>` +
+            `<b>raw images</b><span>${fmt(imgs.reduce((s, i) => s + i.bytes.length, 0))}</span>` +
+            `<b>hmml file</b><span>${fmt(file.length)}</span>` +
+            `<b>inlined html</b><span>${fmt(inlined)}</span>` +
+            `<b>savings</b><span class="ok">${savings}%</span>`;
+          $("row").style.display = "flex";
+        } catch (err) {
+          $("err").textContent = "Error: " + (err && err.message ? err.message : err);
+        }
+      });
+
+      function download(bytes, name, type) {
+        const url = URL.createObjectURL(new Blob([bytes], { type }));
+        const a = document.createElement("a");
+        a.href = url; a.download = name; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      $("dlHmml").addEventListener("click", () => lastFile && download(lastFile, "document.hmml", "application/octet-stream"));
+      $("dlHtml").addEventListener("click", () => {
+        if (!lastDoc) return;
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>HMML export</title></head><body>${lastDoc.toHTML()}</body></html>`;
+        download(new TextEncoder().encode(html), "document.html", "text/html");
+      });
+    </script>
+  </body>
+</html>
