@@ -85,13 +85,13 @@ And it was **25.2% smaller** than the self‑contained base64 HTML of the same c
 ## Quick start
 
 ```sh
-npm install hmml
+npm install @eddocu/hmml
 ```
 
 The easy path — `pack` / `unpack`:
 
 ```ts
-import { pack, unpack } from "hmml";
+import { pack, unpack } from "@eddocu/hmml";
 
 // Pass HTML that has data: URIs — they're auto-extracted into raw resources.
 // (gzip by default → smallest file, no config.)
@@ -122,7 +122,7 @@ await pack({
 Use it from a plain `<script>` (CDN/global) — exposes `window.HMML`:
 
 ```html
-<script src="https://unpkg.com/hmml/dist/index.global.js"></script>
+<script src="https://unpkg.com/@eddocu/hmml/dist/index.global.js"></script>
 <script>
   const doc = await HMML.unpack(new Uint8Array(await file.arrayBuffer()));
   document.body.innerHTML = doc.toHTML();
@@ -182,7 +182,7 @@ Default for `pack` is **gzip**; for the low‑level `encode` it's `store` (no de
 Built‑in ids are auto‑resolved on decode.
 
 ```ts
-import { encode, gzipCodec, storeCodec, deflateRawCodec } from "hmml";
+import { encode, gzipCodec, storeCodec, deflateRawCodec } from "@eddocu/hmml";
 await encode(input, { codec: gzipCodec });            // smallest
 await encode(input, { codec: storeCodec, crc: true }); // no compression + integrity
 ```

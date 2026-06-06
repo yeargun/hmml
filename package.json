@@ -1,5 +1,5 @@
 {
-  "name": "hmml",
+  "name": "@eddocu/hmml",
   "version": "0.1.0",
   "description": "HyperMedia Markup Language — a compact binary container that pairs HTML/CSS/SVG with raw (non-base64) image resources.",
   "type": "module",
@@ -24,6 +24,8 @@
     "playground": "npm run pg:build && node e2e/server.mjs",
     "bench": "npm run build && node bench/perf.mjs",
     "size": "node bench/size.mjs",
+    "site:build": "node docs/build.mjs",
+    "site:deploy": "npm run site:build && npx wrangler pages deploy site --project-name=hmml",
     "test": "vitest run",
     "test:browser": "npm run build && playwright test",
     "test:all": "npm run test && npm run test:browser"
@@ -35,9 +37,16 @@
     "type": "git",
     "url": "git+https://github.com/yeargun/hmml.git"
   },
+  "homepage": "https://hmml.eddocu.com",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@playwright/test": "1.57.0",
     "@types/node": "^20.12.7",
+    "highlight.js": "^11.9.0",
+    "marked": "^12.0.2",
+    "marked-highlight": "^2.1.1",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.5",
