@@ -3,6 +3,11 @@ dist
 site
 *.log
 .DS_Store
+
+# secrets - never commit
+.npmrc
+.env
+.env.*
 bench/_entry.tmp.ts
 docs/_reader.tmp.ts
 
