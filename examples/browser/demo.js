@@ -1,5 +1,5 @@
 // Browser demo: generate an image, pack HTML+image into HMML, read it back, and
-// render it — entirely client-side. Also publishes results on
+// render it - entirely client-side. Also publishes results on
 // `window.__hmmlDemo` so the Playwright test can assert against them.
 import { decode, encode, extract, gzipCodec, toBase64 } from "/dist/index.js";
 import { makePng } from "/examples/png.mjs";

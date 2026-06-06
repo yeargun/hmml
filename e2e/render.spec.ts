@@ -18,7 +18,7 @@ test("decodes and renders an HMML document in a real browser", async ({ page }) 
   expect(demo.resources).toBeGreaterThan(0);
   expect(demo.fileSize).toBeLessThan(demo.selfContained); // smaller than base64 HTML
 
-  // The decoded image must actually paint (jsdom can't prove this — a real engine can).
+  // The decoded image must actually paint (jsdom can't prove this - a real engine can).
   const img = page.locator("#stage img");
   await expect(img).toBeVisible();
   const dims = await img.evaluate(async (el: HTMLImageElement) => {

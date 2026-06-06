@@ -64,7 +64,7 @@ export async function buildFood() {
     try {
       data = new Uint8Array(await readFile(join(dir, "images", name)));
     } catch {
-      continue; // missing file (e.g. a stray tracking pixel) — leave the ref
+      continue; // missing file (e.g. a stray tracking pixel) - leave the ref
     }
     const ext = extname(name).slice(1).toLowerCase();
     const id = "i" + i++;
@@ -77,7 +77,7 @@ export async function buildFood() {
   // inject the walking stick-man between row 1 and row 2
   html = html.replace(/<\/sm-recommend-product-list>\s*<\/div>/, (m) => m + STICKMAN);
 
-  const bytes = await encode({ html, resources, meta: { title: "Yemek — a real website, in one .hmml" } }, { codec: gzipCodec });
+  const bytes = await encode({ html, resources, meta: { title: "Yemek - a real website, in one .hmml" } }, { codec: gzipCodec });
 
   const markupBytes = Buffer.byteLength(html, "utf8");
   const selfContained = markupBytes + Math.ceil((imgBytes * 4) / 3); // base64 inflation estimate

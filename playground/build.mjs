@@ -3,7 +3,7 @@
 //   playground/files/<name>.html   the same thing as a standalone, double-clickable HTML page
 //   playground/files/manifest.json index used by playground/index.html
 //
-// Source images live in playground/assets/ — drop your own png/jpg/webp/gif/svg
+// Source images live in playground/assets/ - drop your own png/jpg/webp/gif/svg
 // in there and re-run `npm run pg:build`. If the folder is empty it is seeded
 // with a few generated samples.
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
@@ -48,7 +48,7 @@ function fullPage(title, body) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} — HMML</title>
+<title>${title} - HMML</title>
 </head>
 <body>${body}</body>
 </html>
@@ -104,7 +104,7 @@ async function buildOne(name, mime, bytes) {
     `<style>${CSS}</style>` +
     `<main class="wrap"><article class="card">` +
     `<div class="frame"><img src="${dataUri}" alt="${name}"></div>` +
-    `<h2>${name}</h2><p>${mime} — stored raw, packed in one .hmml</p>` +
+    `<h2>${name}</h2><p>${mime} - stored raw, packed in one .hmml</p>` +
     `</article></main>`;
 
   const { html, resources } = extract(markup);
@@ -158,7 +158,7 @@ async function main() {
 
   let names = await listImages(assetsDir);
   if (names.length === 0) {
-    console.log("assets/ empty — seeding sample images");
+    console.log("assets/ empty - seeding sample images");
     await seedAssets();
     names = await listImages(assetsDir);
   }

@@ -1,5 +1,5 @@
 /**
- * HMML — HyperMedia Markup Language.
+ * HMML - HyperMedia Markup Language.
  *
  * A compact binary container that pairs HTML/CSS/SVG markup with its images
  * stored as raw bytes (no base64) and referenced via the `hmml:<id>` scheme.

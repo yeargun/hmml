@@ -173,7 +173,7 @@ await writeFile(join(out, "index.html"), landing, "utf8");
 await writeFile(join(out, "food.hmml"), food.bytes);
 await writeFile(
   join(out, "docs.html"),
-  await renderDoc(join(root, "README.md"), { title: "HMML — Docs", description: pkg.description, active: "docs" }),
+  await renderDoc(join(root, "README.md"), { title: "HMML - Docs", description: pkg.description, active: "docs" }),
   "utf8",
 );
 await writeFile(

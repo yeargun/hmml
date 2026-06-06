@@ -1,4 +1,4 @@
-// Isomorphic base64 over Uint8Array — no Buffer / atob / btoa dependency, so the
+// Isomorphic base64 over Uint8Array - no Buffer / atob / btoa dependency, so the
 // behaviour is identical in Node, browsers and workers.
 
 const CH = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

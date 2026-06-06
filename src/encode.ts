@@ -69,7 +69,7 @@ export async function encode(input: HmmlInput, options: EncodeOptions = {}): Pro
     writeChunk(w, CHUNK_MARK, payload, compressed, crc);
   }
 
-  // RSRC (zero or more) — raw bytes, never compressed (images are already compressed).
+  // RSRC (zero or more) - raw bytes, never compressed (images are already compressed).
   for (const r of input.resources ?? []) {
     const idB = TE.encode(r.id);
     const mimeB = TE.encode(r.mime);

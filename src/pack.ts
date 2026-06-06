@@ -12,7 +12,7 @@ export interface PackOptions extends EncodeOptions {
 }
 
 /**
- * One-call encode — the easy path.
+ * One-call encode - the easy path.
  *
  * Pass an HTML string (any `data:` image URIs are pulled out into raw resources
  * automatically) or a full `{ html, resources }`. Defaults to **gzip** so you

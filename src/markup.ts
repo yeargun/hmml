@@ -53,7 +53,7 @@ export function extract(html: string, options: ExtractOptions = {}): { html: str
     try {
       data = isB64 ? fromBase64(payload) : new TextEncoder().encode(decodeURIComponent(payload));
     } catch {
-      return match; // malformed payload — leave untouched
+      return match; // malformed payload - leave untouched
     }
 
     const id = prefix + counter++;

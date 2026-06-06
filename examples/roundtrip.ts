@@ -27,7 +27,7 @@ async function main() {
   const dataA = `data:image/png;base64,${toBase64(imgA)}`;
   const dataB = `data:image/png;base64,${toBase64(imgB)}`;
 
-  // Markup with full layout freedom — note the 3D transform on an <img>.
+  // Markup with full layout freedom - note the 3D transform on an <img>.
   const original =
     `<section class="card" style="transform: matrix3d(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1) rotateY(12deg)">` +
     `<h1>Hello HMML</h1>` +
@@ -59,7 +59,7 @@ async function main() {
   console.log(`savings:                 ${(100 * (1 - file.length / selfContained)).toFixed(1)}%`);
 
   if (!ok) {
-    console.error("\nMISMATCH — first divergence:");
+    console.error("\nMISMATCH - first divergence:");
     for (let i = 0; i < Math.max(rebuilt.length, original.length); i++) {
       if (rebuilt[i] !== original[i]) {
         console.error(`  at ${i}: got ${JSON.stringify(rebuilt.slice(i, i + 40))} want ${JSON.stringify(original.slice(i, i + 40))}`);

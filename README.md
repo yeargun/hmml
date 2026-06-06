@@ -4,7 +4,7 @@
 
 ### HyperMedia Markup Language
 
-**A tiny open format for one file that is HTML *and* its images — together, in bytes.**
+**A tiny open format for one file that is HTML *and* its images - together, in bytes.**
 
 `image + html  →  one binary document`
 
@@ -21,7 +21,7 @@ Smaller than a self‑contained HTML file, and it renders with the full power of
 
 ## The idea
 
-A web page is already *hypermedia* — text, layout, and media in one experience. But the
+A web page is already *hypermedia* - text, layout, and media in one experience. But the
 moment you want it as **one portable file**, you hit a wall: you base64 every image into
 the HTML and pay a ~33% size tax, or you ship a folder of loose assets.
 
@@ -41,9 +41,9 @@ HMML is the third option. One binary document:
 ```
 
 The markup references each image by a tiny token (`<img src="hmml:r0">`), and the bytes
-live next to it — uncompressed‑duplicated, exactly as the camera/encoder produced them.
+live next to it - uncompressed‑duplicated, exactly as the camera/encoder produced them.
 Because the renderer is a real browser, your layout has **no limits**: `matrix3d`,
-filters, blend modes, SVG, `<canvas>`, CSS grid — all of it, for free.
+filters, blend modes, SVG, `<canvas>`, CSS grid - all of it, for free.
 
 ## Why HMML
 
@@ -62,7 +62,7 @@ filters, blend modes, SVG, `<canvas>`, CSS grid — all of it, for free.
 
 Measured on this repo (`npm run size`, `npm run bench`; Node 20, single‑threaded).
 
-**Bundle size** — minified, by what you import:
+**Bundle size** - minified, by what you import:
 
 | You import | gzip | brotli |
 | --- | ---: | ---: |
@@ -71,7 +71,7 @@ Measured on this repo (`npm run size`, `npm run bench`; Node 20, single‑thread
 | `pack` + `unpack` (typical app) | **3.2 KB** | 2.9 KB |
 | everything | **3.8 KB** | 3.4 KB |
 
-**Throughput** — a 494 KB document (one ~492 KB image + markup):
+**Throughput** - a 494 KB document (one ~492 KB image + markup):
 
 | Operation | per call | throughput |
 | --- | ---: | ---: |
@@ -88,12 +88,12 @@ And it was **25.2% smaller** than the self‑contained base64 HTML of the same c
 npm install @eddocu/hmml
 ```
 
-The easy path — `pack` / `unpack`:
+The easy path - `pack` / `unpack`:
 
 ```ts
 import { pack, unpack } from "@eddocu/hmml";
 
-// Pass HTML that has data: URIs — they're auto-extracted into raw resources.
+// Pass HTML that has data: URIs - they're auto-extracted into raw resources.
 // (gzip by default → smallest file, no config.)
 const bytes: Uint8Array = await pack(`
   <section style="transform: matrix3d(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1)">
@@ -107,7 +107,7 @@ const doc = await unpack(bytes);
 el.innerHTML = doc.toHTML();          // images inlined as data URIs
 // or, cheaper to paint in the browser:
 const { html, revoke } = doc.createObjectUrls();
-el.innerHTML = html;                  // images as blob: URLs — call revoke() on teardown
+el.innerHTML = html;                  // images as blob: URLs - call revoke() on teardown
 ```
 
 Building a document explicitly (no auto‑extract):
@@ -119,7 +119,7 @@ await pack({
 });
 ```
 
-Use it from a plain `<script>` — exposes `window.HMML`. Until it's on npm, self-host
+Use it from a plain `<script>` - exposes `window.HMML`. Until it's on npm, self-host
 the global build (`dist/index.global.js`, ~4 KB gzip) or inline it; the
 [landing page](https://hmml.pages.dev) ships a decode-only reader inlined this way.
 
@@ -161,21 +161,21 @@ auto‑resolves it). Full byte‑level details, including a hex worked example, 
 | ZIP (EPUB‑style) | ✅ | raw | ✅ | depends | a zip lib |
 
 HMML's niche: a **small, embeddable, smaller‑than‑base64, dependency‑free** binary
-document you fully control — ideal for storing a rich snippet/card compactly and
+document you fully control - ideal for storing a rich snippet/card compactly and
 rehydrating it in the browser. (For archiving whole pages, MHTML or a ZIP are fine;
 this is a different job.)
 
 ## Playground
 
-Real files and pages to poke — see [`playground/`](./playground).
+Real files and pages to poke - see [`playground/`](./playground).
 
 ```sh
 npm run playground   # build + generate + serve a gallery at http://127.0.0.1:5188
 npm run pg:bundle    # zip a self-contained, file://-openable bundle (no server/npm)
 ```
 
-- **Viewer** — drag a `.hmml` in and watch it render (works from `file://`).
-- **Create** — pick images, build & download your own `.hmml`.
+- **Viewer** - drag a `.hmml` in and watch it render (works from `file://`).
+- **Create** - pick images, build & download your own `.hmml`.
 - Every sample also ships as a double‑clickable standalone `.html`.
 
 ## Compression codecs

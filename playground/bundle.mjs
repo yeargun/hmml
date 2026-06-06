@@ -69,7 +69,7 @@ function offlineIndex(manifest) {
 <body>
   <header>
     <h1>HMML playground</h1>
-    <p>Offline bundle — no server needed. Double-click <code>open-me/*.html</code>, or drop a <code>files/*.hmml</code> onto the viewer.</p>
+    <p>Offline bundle - no server needed. Double-click <code>open-me/*.html</code>, or drop a <code>files/*.hmml</code> onto the viewer.</p>
     <div class="links"><a class="btn" href="viewer.html">Open viewer</a><a class="btn" href="create.html">Make your own</a></div>
   </header>
   <div class="grid">${cards}</div>
@@ -103,7 +103,7 @@ async function main() {
   try {
     manifest = JSON.parse(await readFile(join(filesDir, "manifest.json"), "utf8"));
   } catch {
-    throw new Error("No playground/files/manifest.json — run `npm run pg:build` first.");
+    throw new Error("No playground/files/manifest.json - run `npm run pg:build` first.");
   }
 
   await rm(outDir, { recursive: true, force: true });

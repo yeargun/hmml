@@ -13,7 +13,7 @@ so `file://` works).
 
 ## Deploy to Cloudflare Pages
 
-**Option A — Git integration (recommended).** In the Cloudflare dashboard →
+**Option A - Git integration (recommended).** In the Cloudflare dashboard →
 Workers & Pages → Create → Pages → Connect to Git → `yeargun/hmml`:
 
 | Setting | Value |
@@ -26,11 +26,11 @@ Then add the custom domain **hmml.eddocu.com** under the project's *Custom domai
 tab (Cloudflare creates the CNAME automatically since the zone is on Cloudflare).
 Every push to `main` redeploys.
 
-**Option B — direct upload** (uses your logged-in Wrangler):
+**Option B - direct upload** (uses your logged-in Wrangler):
 
 ```sh
 npm run site:deploy     # builds, then `wrangler pages deploy site --project-name=hmml`
 ```
 
-The output is fully static (no server runtime), so it's a plain Pages deploy — no
+The output is fully static (no server runtime), so it's a plain Pages deploy - no
 Functions or Workers needed.

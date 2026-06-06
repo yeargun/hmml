@@ -46,7 +46,7 @@ export interface EncodeOptions {
 
 export interface DecodeOptions {
   /**
-   * Codec to use for compressed chunks. Optional — if the file's codec id maps
+   * Codec to use for compressed chunks. Optional - if the file's codec id maps
    * to a built-in, it is resolved automatically. Required only for custom ids.
    */
   codec?: Codec;
@@ -66,7 +66,7 @@ export interface HmmlDocument {
   meta: Record<string, unknown>;
   /**
    * Markup with references resolved. `datauri` (default) inlines each resource
-   * as a base64 data URI — fully self-contained, good for export/SSR. `keep`
+   * as a base64 data URI - fully self-contained, good for export/SSR. `keep`
    * leaves `hmml:` references untouched.
    */
   toHTML(opts?: { resolve?: ResolveMode }): string;

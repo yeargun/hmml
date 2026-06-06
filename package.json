@@ -1,7 +1,7 @@
 {
   "name": "@eddocu/hmml",
   "version": "0.1.0",
-  "description": "HyperMedia Markup Language — a compact binary container that pairs HTML/CSS/SVG with raw (non-base64) image resources.",
+  "description": "HyperMedia Markup Language - a compact binary container that pairs HTML/CSS/SVG with raw (non-base64) image resources.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

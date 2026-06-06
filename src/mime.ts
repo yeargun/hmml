@@ -20,7 +20,7 @@ export function sniffMime(bytes: Uint8Array): string | undefined {
     if (brand.startsWith("avif") || brand.startsWith("avis")) return "image/avif";
     if (brand.startsWith("heic") || brand.startsWith("heix") || brand.startsWith("mif1")) return "image/heic";
   }
-  // SVG / generic XML — sniff the first non-whitespace bytes as text.
+  // SVG / generic XML - sniff the first non-whitespace bytes as text.
   const head = new TextDecoder().decode(b.subarray(0, Math.min(b.length, 256))).trimStart();
   if (head.startsWith("<svg") || (head.startsWith("<?xml") && head.includes("<svg"))) return "image/svg+xml";
   return undefined;
