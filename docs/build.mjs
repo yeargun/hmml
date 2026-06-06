@@ -14,7 +14,7 @@ import hljs from "highlight.js";
 import { Marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import { encode, extract, gzipCodec, toBase64 } from "../dist/index.js";
-import { SAMPLES } from "./samples.mjs";
+import { SAMPLES, UNIVERSE } from "./samples.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -49,24 +49,20 @@ async function buildReader() {
 function fullPage(markup) {
   return `<!doctype html><html><head><meta charset="utf-8"></head><body>${markup}</body></html>`;
 }
-async function buildSamples() {
-  const list = [];
-  for (const s of SAMPLES) {
-    const markup = await s.build();
-    const { html, resources } = extract(markup);
-    const file = await encode({ html, resources, meta: { title: s.id } }, { codec: gzipCodec });
-    const htmlBytes = Buffer.byteLength(fullPage(markup), "utf8");
-    list.push({
-      id: s.id,
-      title: s.title,
-      blurb: s.blurb,
-      kind: s.kind,
-      b64: toBase64(file),
-      hmml: bytesFmt(file.length),
-      save: Math.max(0, Math.round(100 * (1 - file.length / htmlBytes))),
-    });
-  }
-  return list;
+async function encodeDef(s) {
+  const markup = await s.build();
+  const { html, resources } = extract(markup);
+  const file = await encode({ html, resources, meta: { title: s.id } }, { codec: gzipCodec });
+  const htmlBytes = Buffer.byteLength(fullPage(markup), "utf8");
+  return {
+    id: s.id,
+    title: s.title,
+    blurb: s.blurb,
+    kind: s.kind,
+    b64: toBase64(file),
+    hmml: bytesFmt(file.length),
+    save: Math.max(0, Math.round(100 * (1 - file.length / htmlBytes))),
+  };
 }
 
 /* ---------- 3. docs/spec pages from Markdown ---------- */
@@ -153,13 +149,18 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 `;
 
 /* ---------- assemble ---------- */
-const [reader, samples] = await Promise.all([buildReader(), buildSamples()]);
+const [reader, samples, universe] = await Promise.all([
+  buildReader(),
+  Promise.all(SAMPLES.map(encodeDef)),
+  encodeDef(UNIVERSE),
+]);
 const readerGzip = bytesFmt(reader.gzip);
 
 let landing = await readFile(join(here, "landing.html"), "utf8");
 landing = landing
   .replace("__HMML_LIB__", () => reader.code.replace(/<\/script/gi, "<\\/script"))
-  .replace("__SAMPLES_JSON__", () => JSON.stringify(samples))
+  .replaceAll("__UNIVERSE_JSON__", () => JSON.stringify(universe))
+  .replaceAll("__SAMPLES_JSON__", () => JSON.stringify(samples))
   .replaceAll("__READER_GZIP__", readerGzip);
 
 await rm(out, { recursive: true, force: true });
