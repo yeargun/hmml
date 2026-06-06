@@ -1,7 +1,7 @@
 {
   "name": "@eddocu/hmml",
   "version": "0.1.0",
-  "description": "HyperMedia Markup Language - a compact binary container that pairs HTML/CSS/SVG with raw (non-base64) image resources.",
+  "description": "HyperMedia Markup Language - a tiny binary format where an image is HTML, SVG and a 3D space. Markup as text + images as raw bytes (no base64) in one file; ~2 KB reader. The native target for AI-generated media.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -39,11 +39,15 @@
     "url": "git+https://github.com/yeargun/hmml.git"
   },
   "homepage": "https://hmml.eddocu.com",
+  "bugs": {
+    "url": "https://github.com/yeargun/hmml/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",
+    "terser": "^5.31.0",
     "@types/node": "^20.12.7",
     "highlight.js": "^11.9.0",
     "marked": "^12.0.2",

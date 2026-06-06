@@ -8,8 +8,17 @@ export default defineConfig({
   globalName: "HMML",
   dts: true,
   clean: true,
-  minify: true,
-  sourcemap: true,
+  // Aggressive size: terser with multi-pass compression + top-level mangling.
+  // (Safe options only — the `unsafe_*` flags broke object-method semantics.)
+  minify: "terser",
+  terserOptions: {
+    compress: { passes: 3, drop_debugger: true },
+    mangle: { toplevel: true, reserved: ["HMML"] },
+    format: { comments: false },
+  },
+  treeshake: true,
+  // No sourcemaps in the shipped package — consumers only need the runtime.
+  sourcemap: false,
   target: "es2020",
   outExtension: ({ format }) =>
     format === "cjs" ? { js: ".cjs" } : format === "iife" ? { js: ".global.js" } : { js: ".js" },
