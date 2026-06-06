@@ -17,6 +17,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
+    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "demo": "tsx examples/roundtrip.ts",
     "pg:build": "npm run build && node playground/build.mjs",
