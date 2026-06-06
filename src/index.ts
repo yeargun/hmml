@@ -16,6 +16,8 @@
  * ```
  */
 
+export { pack, unpack } from "./pack";
+export type { PackOptions } from "./pack";
 export { encode } from "./encode";
 export { decode } from "./decode";
 export { extract, inlineDataUris, inlineObjectUrls } from "./markup";

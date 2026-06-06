@@ -8,6 +8,7 @@ export default defineConfig({
   globalName: "HMML",
   dts: true,
   clean: true,
+  minify: true,
   sourcemap: true,
   target: "es2020",
   outExtension: ({ format }) =>

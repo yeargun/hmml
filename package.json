@@ -22,6 +22,8 @@
     "pg:build": "npm run build && node playground/build.mjs",
     "pg:bundle": "npm run pg:build && node playground/bundle.mjs",
     "playground": "npm run pg:build && node e2e/server.mjs",
+    "bench": "npm run build && node bench/perf.mjs",
+    "size": "node bench/size.mjs",
     "test": "vitest run",
     "test:browser": "npm run build && playwright test",
     "test:all": "npm run test && npm run test:browser"
