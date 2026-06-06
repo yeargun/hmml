@@ -75,6 +75,9 @@
   .col .n{font:700 13px var(--mono);color:var(--accent)}
   .col h3{margin:11px 0 7px;font-size:16.5px;letter-spacing:-.01em}
   .col p{margin:0;color:var(--mut);font-size:14px}
+  .coda{max-width:700px;margin:40px auto 0;text-align:center;color:var(--soft);font-size:clamp(15px,2vw,17px);line-height:1.7}
+  .coda em{color:var(--ink);font-style:italic}
+  .coda .muted2{color:#a3a3b0}
 
   .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
   .tile{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;transition:.18s}
@@ -143,15 +146,16 @@
 </header>
 
 <section id="why"><div class="wrap">
-  <div class="eyebrow center">why this is where AI media goes</div>
+  <div class="eyebrow center">composability, not pixels</div>
   <h2 class="statement">The next thing a model generates isn’t an image.<br><span class="hl">It’s a document.</span></h2>
-  <p class="sub center" style="max-width:660px;margin-bottom:42px">Diffusion gives you pixels you can’t change. LLMs already write HTML, CSS and SVG fluently - HMML just packages that output, with raw media, into one deterministic, editable file.</p>
+  <p class="sub center" style="max-width:680px;margin-bottom:42px">An image flattens everything into one frozen raster. HMML keeps the pieces - vector, text, raster, 3D, motion - composable and editable, created at the grain of a node, not a 1024-grid of guesses.</p>
   <div class="cols">
-    <div class="col"><div class="n">01</div><h3>Native to models</h3><p>HTML / CSS / SVG / JS is in every model’s training. Generating HMML is generating what they already produce - then sealed in a contract.</p></div>
-    <div class="col"><div class="n">02</div><h3>Editable, not frozen</h3><p>Restyle, re-localize, animate, diff, remix. Generated output that stays <em>source</em> - not a screenshot you can only regenerate.</p></div>
-    <div class="col"><div class="n">03</div><h3>Tiny &amp; streamable</h3><p>Bytes, not megapixels. Raw media + gzipped markup - smaller than base64, and a ~2 KB reader to open it anywhere.</p></div>
-    <div class="col"><div class="n">04</div><h3>One scene, every medium</h3><p>Text, vector, raster, 3D and motion composed together - a single generative artifact instead of a folder of assets.</p></div>
+    <div class="col"><div class="n">01</div><h3>Composable, not flattened</h3><p>A photo, an icon, a chart, a 3D scene - an image crushes them into one raster. HMML keeps each as itself: layered, addressable, recomposable.</p></div>
+    <div class="col"><div class="n">02</div><h3>Fine-grained primitives</h3><p>Create and edit at the grain of an element, a transform, a keyframe - change one node, not the whole render. Diff it, version it, remix it.</p></div>
+    <div class="col"><div class="n">03</div><h3>Editable, not frozen</h3><p>Restyle, re-localize, animate after the fact. Generated output that stays <em>source</em> - not a screenshot you can only regenerate.</p></div>
+    <div class="col"><div class="n">04</div><h3>Native to models</h3><p>Models already write HTML, CSS and SVG. HMML just seals that output, with raw media, into one portable contract - a ~2 KB reader opens it anywhere.</p></div>
   </div>
+  <p class="coda">Will models evolve to emit this directly? <em>Maybe. Maybe not.</em> But “image” is already an overloaded word - photo, icon, chart, scene, animation, all crushed into one frozen raster. HMML un-conflates it, and earns its use cases either way. <span class="muted2">Or maybe pixels were fine all along. Let’s see.</span></p>
 </div></section>
 
 <section class="alt"><div class="wrap">
