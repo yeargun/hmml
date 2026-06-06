@@ -223,18 +223,21 @@
 <section class="alt"><div class="wrap">
   <div class="eyebrow">use it</div>
   <h2>Two calls.</h2>
-  <pre class="code"><span class="c">// a model emits HTML; data: images become raw bytes, gzip by default</span>
-<span class="k">const</span> bytes = <span class="k">await</span> <span class="f">pack</span>(modelOutputHtml)
+  <pre class="code"><span class="c">// ENCODE — pack(html) → one .hmml (a Uint8Array you store or send)</span>
+<span class="c">//   · lifts every data: image out of the HTML into raw bytes (no base64)</span>
+<span class="c">//   · gzips the HTML/CSS/JS and frames it all as one binary blob</span>
+<span class="k">const</span> bytes = <span class="k">await</span> <span class="f">pack</span>(html)
 
-<span class="c">// …store / send the .hmml … then, anywhere a browser runs:</span>
+<span class="c">// DECODE — unpack(bytes) → the document back, anywhere a browser runs</span>
+<span class="c">//   · reads the markup + the raw images out of the blob</span>
+<span class="c">//   · toHTML() re-stitches them into renderable HTML you can mount</span>
 <span class="k">const</span> doc = <span class="k">await</span> <span class="f">unpack</span>(bytes)
-el.innerHTML = doc.<span class="f">toHTML</span>()</pre>
+el.innerHTML = doc.<span class="f">toHTML</span>()   <span class="c">// (or doc.createObjectUrls() for blob: URLs)</span></pre>
 </div></section>
 
 <section><div class="wrap">
   <div class="eyebrow">defined</div>
   <h2>image, <span style="font-family:var(--mono);font-weight:600;color:var(--mut);font-size:.62em">/ˈɪm.ɪdʒ/ noun</span></h2>
-  <p class="sub">Even the definition is one <code>.hmml</code>. A real Cambridge Dictionary entry for the word <em>image</em> - decoded right here, live.</p>
   <div class="stage doc" id="dstage">
     <div class="badge">one <b>.hmml</b> · <span id="dsize">…</span> · a dictionary entry</div>
     <iframe id="dict-frame" title="Dictionary definition of image, rendered from one HMML file" scrolling="no"></iframe>
