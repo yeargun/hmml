@@ -119,17 +119,18 @@ await pack({
 });
 ```
 
-Use it from a plain `<script>` - exposes `window.HMML`. Until it's on npm, self-host
-the global build (`dist/index.global.js`, ~4 KB gzip) or inline it; the
-[landing page](https://hmml.pages.dev) ships a decode-only reader inlined this way.
+Use it from a plain `<script>` via CDN - exposes `window.HMML` (~3.7 KB gzip):
 
 ```html
-<script src="/hmml.global.js"></script>
+<script src="https://unpkg.com/@eddocu/hmml/dist/index.global.js"></script>
 <script>
   const doc = await HMML.unpack(new Uint8Array(await file.arrayBuffer()));
   document.body.innerHTML = doc.toHTML();
 </script>
 ```
+
+> For the smallest payload, inline a decode-only build (~2 KB gzip) - that's what the
+> [landing page](https://hmml.pages.dev) does.
 
 ## How it works (the contract)
 
