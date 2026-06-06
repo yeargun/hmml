@@ -96,7 +96,8 @@
   pre.code .c{color:#7a7a93}pre.code .k{color:#a5b4fc}pre.code .s{color:#5eead4}pre.code .f{color:#fda4af}
   pre.code .tg{color:#8a8aa3}
   pre.code .ai{background:rgba(124,140,255,.24);outline:1px solid rgba(124,140,255,.55);border-radius:4px;padding:0 .15em}
-  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  pre.code .mt{background:rgba(13,148,136,.22);outline:1px solid rgba(13,148,136,.5);border-radius:4px;padding:0 .15em}
   .codecard{margin:0}
   .codecard figcaption{display:flex;align-items:center;gap:8px;font:600 12.5px/1 var(--mono);color:var(--soft);margin-bottom:10px}
   .codecard figcaption .muted{color:#a0a0ad;font-weight:500}
@@ -155,21 +156,36 @@
 
 <section class="alt"><div class="wrap">
   <div class="eyebrow">then / now</div>
-  <h2>From a flat image to a whole document.</h2>
-  <p class="sub">Today a model paints one dead image and you hand-write the markup around it. Next, the model writes the <em>whole thing</em> - layout, media, motion, logic - and it ships as one <code>.hmml</code>.</p>
+  <h2>You don't build the scene. You mount it.</h2>
+  <p class="sub">Today you hand-wire layout, styles, state and a folder of assets around a couple of flat AI images. With HMML the model ships the <em>whole scene</em> as one file - your app just <strong>fetches it, decodes, and mounts it into a div</strong>. All the complexity downloads inside the <code>.hmml</code>.</p>
   <div class="cmp">
     <figure class="codecard">
-      <figcaption><span class="d d1"></span>today <span class="muted">- only the pixels are generated</span></figcaption>
-      <pre class="code"><span class="tg">&lt;div&gt;</span>
-  <span class="ai">&lt;img src=<span class="s">"lame-aigen-image.png"</span> /&gt;</span>  <span class="c">// the model's whole job</span>
-  <span class="tg">&lt;div&gt;</span>we write the text. makes sense.<span class="tg">&lt;/div&gt;</span>
-<span class="tg">&lt;/div&gt;</span></pre>
+      <figcaption><span class="d d1"></span>today <span class="muted">- you assemble every piece by hand</span></figcaption>
+      <pre class="code"><span class="tg">&lt;div class=<span class="s">"product"</span>&gt;</span>
+  <span class="ai">&lt;img src=<span class="s">"ai/hero-1.png"</span>&gt; &lt;img src=<span class="s">"ai/hero-2.png"</span>&gt;</span> <span class="c">// AI's whole job</span>
+  <span class="tg">&lt;div class=<span class="s">"copy"</span>&gt;</span>
+    <span class="tg">&lt;h2&gt;</span>you hand-write this<span class="tg">&lt;/h2&gt;</span>
+    <span class="tg">&lt;p&gt;</span>...and this. and the alt text.<span class="tg">&lt;/p&gt;</span>
+    <span class="tg">&lt;button onclick=<span class="s">"addToCart()"</span>&gt;</span>Buy<span class="tg">&lt;/button&gt;</span>
+  <span class="tg">&lt;/div&gt;</span>
+<span class="tg">&lt;/div&gt;</span>
+<span class="tg">&lt;style&gt;</span> .product{ display:grid; gap:24px } <span class="c">/* +40 lines */</span> <span class="tg">&lt;/style&gt;</span>
+<span class="tg">&lt;script src=<span class="s">"layout.js"</span>&gt;&lt;/script&gt;</span>
+<span class="tg">&lt;script&gt;</span> hydrate(); wireCarousel(); track() <span class="tg">&lt;/script&gt;</span>
+<span class="c">&lt;!-- + /assets: 14 files, + state, + a build step --&gt;</span></pre>
     </figure>
     <figure class="codecard gen">
-      <figcaption><span class="d d2"></span>next <span class="muted">- the whole thing is generated</span><span class="genbadge">100% AI</span></figcaption>
-      <pre class="code"><span class="tg">&lt;style&gt;</span> .scene{ transform:<span class="f">matrix3d</span>(…) } <span class="tg">&lt;/style&gt;</span>
-<span class="tg">&lt;div class=<span class="s">"scene"</span>&gt;</span> &lt;svg&gt;…&lt;/svg&gt; &lt;img&gt; &lt;p&gt;…&lt;/p&gt; <span class="tg">&lt;/div&gt;</span>
-<span class="tg">&lt;script&gt;</span> animate(); onPointer(parallax) <span class="tg">&lt;/script&gt;</span></pre>
+      <figcaption><span class="d d2"></span>next <span class="muted">- fetch &middot; decode &middot; mount</span><span class="genbadge">scene = 100% AI</span></figcaption>
+      <pre class="code"><span class="tg">&lt;div id=<span class="s">"scene"</span>&gt;&lt;/div&gt;</span>           <span class="c">// the mounting div</span>
+
+<span class="tg">&lt;script type=<span class="s">"module"</span>&gt;</span>
+  <span class="k">import</span> { unpack } <span class="k">from</span> <span class="s">"@eddocu/hmml"</span>
+  <span class="k">const</span> bytes = <span class="k">await</span> fetch(<span class="ai"><span class="s">"scene.hmml"</span></span>).then(r =&gt; r.arrayBuffer())
+  <span class="k">const</span> doc = <span class="k">await</span> <span class="mt"><span class="f">unpack</span>(<span class="k">new</span> Uint8Array(bytes))</span>  <span class="c">// decode</span>
+  <span class="mt">scene.innerHTML = doc.<span class="f">toHTML</span>()</span>                <span class="c">// mount</span>
+<span class="tg">&lt;/script&gt;</span>
+
+<span class="c">// one file = layout + media + motion + logic</span></pre>
     </figure>
   </div>
 </div></section>
