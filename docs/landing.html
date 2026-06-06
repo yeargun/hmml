@@ -94,11 +94,22 @@
 
   pre.code{margin:0;border:1px solid var(--line);border-radius:16px;background:#0b0b14;color:#e7e7f2;padding:20px 22px;overflow:auto;font-family:var(--mono);font-size:13.5px;line-height:1.75}
   pre.code .c{color:#7a7a93}pre.code .k{color:#a5b4fc}pre.code .s{color:#5eead4}pre.code .f{color:#fda4af}
+  pre.code .tg{color:#8a8aa3}
+  pre.code .ai{background:rgba(124,140,255,.24);outline:1px solid rgba(124,140,255,.55);border-radius:4px;padding:0 .15em}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .codecard{margin:0}
+  .codecard figcaption{display:flex;align-items:center;gap:8px;font:600 12.5px/1 var(--mono);color:var(--soft);margin-bottom:10px}
+  .codecard figcaption .muted{color:#a0a0ad;font-weight:500}
+  .codecard .d{width:8px;height:8px;border-radius:50%;flex:none}
+  .codecard .d1{background:#c2c2cf}
+  .codecard .d2{background:linear-gradient(120deg,var(--accent),var(--accent2))}
+  .codecard .genbadge{margin-left:auto;font:700 10px/1 var(--mono);letter-spacing:.06em;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));padding:5px 8px;border-radius:6px}
+  .codecard.gen pre.code{border:1.5px solid transparent;background:linear-gradient(#0b0b14,#0b0b14) padding-box,linear-gradient(120deg,var(--accent),var(--accent2)) border-box;box-shadow:0 22px 50px -32px var(--accent)}
 
   footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mut);font-size:13.5px;background:var(--bg2)}
   footer .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}footer a:hover{color:var(--ink)}
 
-  @media(max-width:860px){.cols,.cols.three{grid-template-columns:1fr 1fr}.gal{grid-template-columns:1fr 1fr}.stage.tall{height:70vh}}
+  @media(max-width:860px){.cols,.cols.three{grid-template-columns:1fr 1fr}.gal{grid-template-columns:1fr 1fr}.stage.tall{height:70vh}.cmp{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -139,6 +150,27 @@
     <div class="col"><div class="n">02</div><h3>Editable, not frozen</h3><p>Restyle, re-localize, animate, diff, remix. Generated output that stays <em>source</em> - not a screenshot you can only regenerate.</p></div>
     <div class="col"><div class="n">03</div><h3>Tiny &amp; streamable</h3><p>Bytes, not megapixels. Raw media + gzipped markup - smaller than base64, and a ~2 KB reader to open it anywhere.</p></div>
     <div class="col"><div class="n">04</div><h3>One scene, every medium</h3><p>Text, vector, raster, 3D and motion composed together - a single generative artifact instead of a folder of assets.</p></div>
+  </div>
+</div></section>
+
+<section class="alt"><div class="wrap">
+  <div class="eyebrow">then / now</div>
+  <h2>From a flat image to a whole document.</h2>
+  <p class="sub">Today a model paints one dead image and you hand-write the markup around it. Next, the model writes the <em>whole thing</em> - layout, media, motion, logic - and it ships as one <code>.hmml</code>.</p>
+  <div class="cmp">
+    <figure class="codecard">
+      <figcaption><span class="d d1"></span>today <span class="muted">- only the pixels are generated</span></figcaption>
+      <pre class="code"><span class="tg">&lt;div&gt;</span>
+  <span class="ai">&lt;img src=<span class="s">"lame-aigen-image.png"</span> /&gt;</span>  <span class="c">// the model's whole job</span>
+  <span class="tg">&lt;div&gt;</span>we write the text. makes sense.<span class="tg">&lt;/div&gt;</span>
+<span class="tg">&lt;/div&gt;</span></pre>
+    </figure>
+    <figure class="codecard gen">
+      <figcaption><span class="d d2"></span>next <span class="muted">- the whole thing is generated</span><span class="genbadge">100% AI</span></figcaption>
+      <pre class="code"><span class="tg">&lt;style&gt;</span> .scene{ transform:<span class="f">matrix3d</span>(…) } <span class="tg">&lt;/style&gt;</span>
+<span class="tg">&lt;div class=<span class="s">"scene"</span>&gt;</span> &lt;svg&gt;…&lt;/svg&gt; &lt;img&gt; &lt;p&gt;…&lt;/p&gt; <span class="tg">&lt;/div&gt;</span>
+<span class="tg">&lt;script&gt;</span> animate(); onPointer(parallax) <span class="tg">&lt;/script&gt;</span></pre>
+    </figure>
   </div>
 </div></section>
 
