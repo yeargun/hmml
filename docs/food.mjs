@@ -91,3 +91,31 @@ export async function buildFood() {
     resources: resources.length,
   };
 }
+
+// A Cambridge dictionary entry for "image" -> one .hmml (no images; unused
+// icon/fonts left as-is and fall back gracefully).
+export async function buildDictionary() {
+  const ddir = join(here, "..", "dictionary-snippet-2026-6-6");
+  let html = await readFile(join(ddir, "index.html"), "utf8");
+  const css = await readFile(join(ddir, "snipped.css"), "utf8");
+  html = html.replace('<link rel="stylesheet" href="./snipped.css">', `<style>\n${css}\n</style>`);
+
+  const resources = [];
+  const idOf = new Map();
+  let i = 0;
+  for (const m of html.matchAll(/\.\/images\/([^"')\s]+)/g)) {
+    const name = m[1];
+    if (idOf.has(name)) continue;
+    try {
+      const data = new Uint8Array(await readFile(join(ddir, "images", name)));
+      const id = "d" + i++;
+      resources.push({ id, mime: MIME[extname(name).slice(1).toLowerCase()] || "application/octet-stream", data });
+      idOf.set(name, id);
+    } catch {}
+  }
+  html = html.replace(/\.\/images\/([^"')\s]+)/g, (m, name) => (idOf.has(name) ? "hmml:" + idOf.get(name) : m));
+
+  const bytes = await encode({ html, resources, meta: { title: "image | dictionary definition, in one .hmml" } }, { codec: gzipCodec });
+  const raw = Buffer.byteLength(html, "utf8");
+  return { bytes, hmmlBytes: bytes.length, save: Math.max(0, Math.round(100 * (1 - bytes.length / raw))) };
+}

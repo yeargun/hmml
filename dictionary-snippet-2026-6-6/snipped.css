@@ -1,0 +1,561 @@
+@font-face { 
+  font-family:'ico-c';
+  font-display:swap;
+  src:url(./fonts/cdoicons.woff-version-6.0.78) format('woff');
+} 
+  body {  
+    color:#1d2a57;
+    font-size:16px;
+    font-family:sans-serif;
+  }  
+* { 
+    -moz-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+    box-sizing: border-box; 
+    -webkit-font-smoothing: antialiased;
+} 
+
+.tc-bd { 
+    color: #1d2a57;
+} 
+
+.lpt-10 { 
+    padding-top: 10px;
+} 
+
+.lpb-25 { 
+    padding-bottom: 25px;
+} 
+
+.pr { 
+    position: relative;
+} 
+
+.fon { 
+    outline: 0;
+} 
+
+body { 
+    -webkit-text-size-adjust: 100%; 
+    -moz-text-size-adjust: 100%; 
+    -ms-text-size-adjust: 100%; 
+    text-size-adjust: 100%;
+} 
+
+body { 
+    margin: 0;
+} 
+
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-size: 16px; 
+    color: #1d2a57; 
+    font-family: Arial,Helvetica,sans-serif;
+} 
+
+html:not([amp4ads]) body { 
+    height: auto!important;
+} 
+
+html:not([amp4ads]) body { 
+    margin: 0!important;
+} 
+
+html.i-amphtml-singledoc:not(.i-amphtml-inabox) > body { 
+    position: relative!important;
+} 
+
+html { 
+    overflow-x: hidden!important;
+} 
+
+html { 
+    font-family: sans-serif; 
+    -ms-text-size-adjust: 100%; 
+    -webkit-text-size-adjust: 100%;
+} 
+
+:root { 
+    --sd-rating-bad-color: var(--sjs-special-red, var(--red, #e60a3e)); 
+    --sd-rating-normal-color: var(--sjs-special-yellow, var(--yellow, #ff9814)); 
+    --sd-rating-good-color: var(--sjs-special-green, var(--green, #19b394)); 
+    --sd-rating-bad-color-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1))); 
+    --sd-rating-normal-color-light: var(--sjs-special-yellow-light, var(--yellow-light, rgba(255, 152, 20, 0.1))); 
+    --sd-rating-good-color-light: var(--sjs-special-green-light, var(--green-light, rgba(25, 179, 148, 0.1)));
+} 
+
+html:not([amp4ads]) { 
+    height: auto!important;
+} 
+
+.cid { 
+    position: absolute; 
+    top: -60px; 
+    left: 0; 
+    width: 1px; 
+    height: 1px;
+} 
+
+@media screen and (min-width: 763px){ 
+  .cid { 
+    top: -110px;
+  } 
+}     
+
+small { 
+    font-size: 80%;
+} 
+
+.hdb { 
+    display: block;
+} 
+
+.ddef { 
+    font-size: .75rem; 
+    font-style: italic;
+} 
+
+.lpb-10 { 
+    padding-bottom: 10px;
+} 
+
+.lmb-10 { 
+    margin-bottom: 10px;
+} 
+
+.lbt { 
+    border-top: solid 1px #e5e4e9;
+} 
+
+.lb-cm { 
+    border-color: #dedede;
+} 
+
+.di { 
+    margin-bottom: 10px;
+} 
+
+b { 
+    font-weight: 700;
+} 
+
+a { 
+    background-color: transparent;
+} 
+
+a { 
+    text-decoration: underline; 
+    color: #1d2a57; 
+    cursor: pointer;
+} 
+
+.gen-pJc-hahana { 
+    text-decoration: none;
+} 
+
+.had a  { 
+    text-decoration: underline;
+} 
+
+.gen-dMz-tc-bdtc-bd { 
+    color: #1d2a57;
+} 
+
+a:active,a:hover { 
+    outline: 0;
+} 
+
+a:hover { 
+    text-decoration: none;
+} 
+
+ .han a:hover,.had a  { 
+    text-decoration: underline;
+} 
+
+.had a:hover { 
+    text-decoration: none;
+} 
+
+.lbb { 
+    border-bottom: solid 1px #e5e4e9;
+} 
+
+div.x:before,.lcs:before { 
+    content: " "; 
+    display: table;
+} 
+
+div.x:after,.lcs:after { 
+    content: " "; 
+    display: table; 
+    clear: both;
+} 
+
+.ha:hover, .han a:hover, .had a, .haf, .hax a:hover .haxa { 
+    text-decoration: underline;
+} 
+
+.dpos-h { 
+    padding: 0 0 12px 10px;
+} 
+
+.hdib { 
+    display: inline-block;
+} 
+
+.dpos-g { 
+    margin-bottom: 5px;
+} 
+
+.lmr-5 { 
+    margin-right: 5px;
+} 
+
+.dsense { 
+    border-top: solid 3px #5d2fc1; 
+    margin-bottom: 30px;
+} 
+
+.tw-bw { 
+    word-wrap: break-word;
+} 
+
+.dpos-h_hw { 
+    margin: 5px 0; 
+    font-size: 36px; 
+    color: #1d2a57; 
+    font-weight: 400;
+} 
+
+.dpos-g .dpos  { 
+    font-size: 14px; 
+    font-weight: bold; 
+    font-style: italic;
+} 
+
+.dpos-h .pos  { 
+    font-weight: 700;
+} 
+
+.dreg { 
+    margin-right: 5px; 
+    font-size: .75rem; 
+    font-weight: 700; 
+    text-transform: uppercase;
+} 
+
+.daud { 
+    margin-left: -5px;
+} 
+
+.dpron { 
+    font-size: .875rem;
+} 
+
+.dpron { 
+    margin-right: 5px;
+} 
+
+.dpron { 
+    display: inline-block; 
+    min-height: 25px;
+} 
+
+h3 { 
+    margin: 0 0 15px; 
+    line-height: 1; 
+    font-weight: 400; 
+    font-size: 1rem;
+} 
+
+h3 { 
+    font-size: 1.3125rem;
+} 
+
+.dsense_h { 
+    margin-bottom: 12px; 
+    padding-top: 10px; 
+    color: #5d2fc1; 
+    font-size: 1rem; 
+    font-weight: 700;
+} 
+
+.dsense_h { 
+    padding-left: 10px; 
+    padding-right: 10px;
+} 
+
+audio { 
+    display: inline-block; 
+    vertical-align: baseline;
+} 
+
+.hdn { 
+    display: none;
+} 
+
+audio:not([controls]) { 
+    display: none; 
+    height: 0;
+} 
+
+.i { 
+    display: inline-block; 
+    font: normal normal normal 1rem/1 ico-c; 
+    color: #292929; 
+    vertical-align: middle; 
+    text-rendering: auto; 
+    webkit-font-smoothing: antialiased; 
+    moz-osx-font-smoothing: grayscale;
+} 
+
+.i { 
+    speak: none;
+} 
+
+.fs20 { 
+    font-size: 1.25rem;
+} 
+
+.c_aud { 
+    line-height: 26px;
+} 
+
+.hv-1 { 
+    vertical-align: -1px;
+} 
+
+.hv-3 { 
+    vertical-align: -3px;
+} 
+
+.hp { 
+    cursor: pointer;
+} 
+
+.htc { 
+    text-align: center;
+} 
+
+.tcu { 
+    text-transform: uppercase;
+} 
+
+.lpt-3 { 
+    padding-top: 3px;
+} 
+
+.lmr-10 { 
+    margin-right: 10px;
+} 
+
+.i,.i:before { 
+    speak: none;
+} 
+
+.i-volume-up:before { 
+    content: "\f028";
+} 
+
+.dipa { 
+    word-wrap: break-word; 
+    word-break: break-word;
+} 
+
+.lpl-1 { 
+    padding-left: 1px;
+} 
+
+.lpr-2 { 
+    padding-right: 2px;
+} 
+
+.ipa { 
+    font-family: Arial,Helvetica,sans-serif;
+} 
+
+.dsense_pos { 
+    font-style: italic; 
+    font-size: .875rem;
+} 
+
+.dsense_gw { 
+    font-size: 14px; 
+    text-transform: uppercase;
+} 
+
+.dsense_h .dsense_gw  { 
+    vertical-align: 1px;
+} 
+
+.ddef_block { 
+    padding-left: 10px; 
+    padding-right: 10px;
+} 
+
+.dsense_h .dsense_gw > span  { 
+    vertical-align: -1px;
+} 
+
+.hax { 
+    text-decoration: none;
+} 
+
+.dwl { 
+    position: relative; 
+    margin-top: 2px; 
+    border-top: solid thin #fec400;
+} 
+
+.hax,.hax:hover { 
+    text-decoration: none;
+} 
+
+.ddef_h { 
+    margin: 15px 0 20px;
+} 
+
+.ddef_b { 
+    margin-bottom: 20px; 
+    font-size: 18px;
+} 
+
+p { 
+    line-height: 1.4; 
+    margin: 10px 0;
+} 
+
+.dwla { 
+    position: absolute; 
+    right: 0; 
+    top: -12px; 
+    padding: 2px 8px; 
+    background: #fec400; 
+    border-radius: 20px;
+} 
+
+.hax a  { 
+    text-decoration: none;
+} 
+
+[amp-access][amp-access-hide] { 
+    display: none;
+} 
+
+.dwla:hover { 
+    text-decoration: none;
+} 
+
+.hax a , .hax a:hover { 
+    text-decoration: none;
+} 
+
+.hax, .hax:hover, .hax a, .hax a:hover { 
+    text-decoration: none;
+} 
+
+.db { 
+    font-weight: 700;
+} 
+
+.def { 
+    line-height: 24px; 
+    font-size: 18px;
+} 
+
+.ddef_d { 
+    margin-top: 10px; 
+    font-size: 18px; 
+    line-height: 1.5; 
+    display: block;
+} 
+
+.dexamp { 
+    position: relative; 
+    padding-left: 12px; 
+    display: block;
+} 
+
+.ddef_b .dexamp  { 
+    margin-right: 22px; 
+    position: relative; 
+    font-size: 17px; 
+    margin-bottom: 10px; 
+    line-height: 1.4;
+} 
+
+.ddef_b .dexamp  { 
+    font-size: 17px;
+} 
+
+.dexamp:before { 
+    content: "•"; 
+    position: absolute; 
+    top: 0; 
+    left: 0;
+} 
+
+.fs10 { 
+    font-size: .625rem;
+} 
+
+.hvm { 
+    vertical-align: middle;
+} 
+
+.tb { 
+    font-weight: 700;
+} 
+
+.dwla i  { 
+    font-size: 10px;
+} 
+
+.dwla i.i-list-ul  { 
+    font-size: 12px;
+} 
+
+.i-list-ul:before { 
+    content: "\f0ca";
+} 
+
+.dxref { 
+    margin-right: 3px; 
+    padding: 2px 6px; 
+    color: #fff; 
+    font-weight: 700; 
+    font-size: .75rem; 
+    text-align: center; 
+    background-color: #1d2956; 
+    border-radius: 50px;
+} 
+
+.dgram { 
+    font-size: .75rem;
+} 
+
+.dexamp .eg  { 
+    padding-right: 15px; 
+    font-style: italic; 
+    vertical-align: initial;
+} 
+
+.dexamp .eg  { 
+    font-family: Arial,Helvetica,"Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif,ico-c;
+} 
+
+.dlu { 
+    font-weight: bold;
+} 
+
+a.dlu { 
+    text-decoration: underline;
+} 
+
+.dgc { 
+    letter-spacing: 1px;
+} 
+
+

@@ -46,8 +46,11 @@
   .stage.tall{height:min(74vh,620px)}
   .stage.ar{aspect-ratio:16/8}
   .stage.food{min-height:380px;background:#fff}
+  .stage.doc{min-height:220px;background:#fff}
   .stage iframe{width:100%;height:100%;border:0;display:block;background:#fff}
   .stage.food iframe{width:1280px;height:auto;transform-origin:top left}
+  .stage.doc iframe{height:auto}
+  .stage.doc .badge{left:auto;right:14px}
   .stage .badge{position:absolute;left:14px;top:13px;z-index:2;font:600 11px/1 var(--mono);letter-spacing:.03em;color:var(--ink);background:rgba(255,255,255,.86);backdrop-filter:blur(6px);border:1px solid var(--line);padding:7px 10px;border-radius:9px}
   .stage .badge b{color:var(--accent)}
   .stage .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--mut);font:600 13px var(--mono)}
@@ -107,7 +110,7 @@
 <header class="hero"><div class="wrap">
   <div class="kick">the future of generated media</div>
   <h1 class="title">Stop generating pixels.<br>Generate <span class="tw" id="tw"></span><span class="caret"></span></h1>
-  <p class="lede">HMML is an image format where the image is <strong>HTML, SVG and a 3D space</strong> - declarative, editable, tiny. The native target for what models already write. <strong>bits &amp; bytes &amp; a contract.</strong></p>
+  <p class="lede">HMML (HyperMedia Markup Language) is a declarative markup language for images. Also JS. <strong>HMML is HTML, but not UTF-8.</strong> A sneak peek for future-gen media <span style="opacity:.55">(#rezervation)</span></p>
   <div class="cta">
     <a class="btn primary" href="#live">See it live ↓</a>
     <a class="btn" href="spec.html">Read the spec</a>
@@ -176,6 +179,16 @@
 el.innerHTML = doc.<span class="f">toHTML</span>()</pre>
 </div></section>
 
+<section><div class="wrap">
+  <div class="eyebrow">defined</div>
+  <h2>image, <span style="font-family:var(--mono);font-weight:600;color:var(--mut);font-size:.62em">/ˈɪm.ɪdʒ/ noun</span></h2>
+  <p class="sub">Even the definition is one <code>.hmml</code>. A real Cambridge Dictionary entry for the word <em>image</em> - decoded right here, live.</p>
+  <div class="stage doc" id="dstage">
+    <div class="badge">one <b>.hmml</b> · <span id="dsize">…</span> · a dictionary entry</div>
+    <iframe id="dict-frame" title="Dictionary definition of image, rendered from one HMML file" scrolling="no"></iframe>
+  </div>
+</div></section>
+
 <footer><div class="wrap">
   <div>HMML - HyperMedia Markup Language · <b style="color:var(--ink)">__READER_GZIP__</b> reader · MIT</div>
   <div style="display:flex;gap:18px"><a href="spec.html">Spec</a><a href="docs.html">Docs</a><a href="https://github.com/yeargun/hmml">GitHub</a><a href="https://github.com/yeargun/hmml/tree/main/playground">Playground</a></div>
@@ -214,6 +227,19 @@ fetch('food.hmml').then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();})
     var l=document.getElementById('fload');if(l)l.remove();
   })
   .catch(function(){var l=document.getElementById('fload');if(l)l.textContent='(serve over http to load the demo - npm run playground)';});
+
+// dictionary: a real definition, as one .hmml, at the very bottom
+function fitDict(){
+  var f=document.getElementById('dict-frame'),st=document.getElementById('dstage');
+  if(!f||!st)return;
+  try{var d=f.contentDocument;if(!d||!d.body)return;var h=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight,200);f.style.height=h+'px';st.style.height=h+'px';}catch(e){}
+}
+addEventListener('resize',fitDict);
+document.getElementById('dsize').textContent="__DICT_SIZE__";
+fetch('dict.hmml').then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();})
+  .then(function(b){return HMML.decode(new Uint8Array(b));})
+  .then(function(doc){var f=document.getElementById('dict-frame');f.onload=function(){fitDict();setTimeout(fitDict,400);};f.srcdoc=doc.toHTML();})
+  .catch(function(){});
 
 // universe (inlined)
 HMML.decode(HMML.fromBase64(__UNIVERSE_JSON__.b64)).then(function(doc){document.getElementById('uni-frame').srcdoc=doc.toHTML();});

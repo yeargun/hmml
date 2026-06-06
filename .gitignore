@@ -20,3 +20,6 @@ docs/_reader.tmp.ts
 
 # vendored demo page: fonts unused (CSS @imports Google Fonts)
 /food-webpage/fonts
+
+# vendored dictionary snippet: fonts unused
+/dictionary-snippet-2026-6-6/fonts
