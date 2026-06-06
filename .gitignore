@@ -17,3 +17,6 @@ docs/_reader.tmp.ts
 /playground/hmml-playground
 /playground/*.zip
 /playground/*.tar.gz
+
+# vendored demo page: fonts unused (CSS @imports Google Fonts)
+/food-webpage/fonts
