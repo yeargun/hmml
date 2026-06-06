@@ -36,7 +36,7 @@ const STICKMAN = `
   <div class="ground"></div>
   <div class="label">↑ a stick-man SVG, animated, living inside this .hmml</div>
   <div class="walker">
-    <div class="bubble">I am image. <b>I am image.</b></div>
+    <div class="bubble">i'm an image. <b>i'm an image.</b></div>
     <div class="tagline">"He is HMML"</div>
     <svg class="sm" width="64" height="96" viewBox="0 0 64 96" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round">
       <g class="body"><circle cx="30" cy="13" r="9" fill="#fff"/><line x1="30" y1="22" x2="30" y2="56"/></g>
