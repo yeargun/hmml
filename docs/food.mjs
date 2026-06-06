@@ -21,6 +21,7 @@ const STICKMAN = `
   .hmml-walk .bubble{position:absolute;left:54px;bottom:84px;white-space:nowrap;background:#fff;border:2px solid #111;border-radius:14px;padding:7px 13px;font:800 13px/1 ui-sans-serif,system-ui,sans-serif;color:#111;box-shadow:0 8px 18px -10px rgba(0,0,0,.45)}
   .hmml-walk .bubble:after{content:"";position:absolute;left:16px;bottom:-9px;border:8px solid transparent;border-top-color:#111;border-bottom:0}
   .hmml-walk .bubble b{color:#4f46e5}
+  .hmml-walk .tagline{position:absolute;left:56px;bottom:56px;white-space:nowrap;font:italic 700 12px/1 ui-sans-serif,system-ui,sans-serif;color:#6c6c7a}
   .hmml-walk .arm,.hmml-walk .leg{transform-box:view-box}
   .hmml-walk .leg{--o:56px}.hmml-walk .arm{--o:32px}
   .hmml-walk .l1,.hmml-walk .a2{transform-origin:30px var(--o);animation:hsa .46s ease-in-out infinite alternate}
@@ -36,6 +37,7 @@ const STICKMAN = `
   <div class="label">↑ a stick-man SVG, animated, living inside this .hmml</div>
   <div class="walker">
     <div class="bubble">I am image. <b>I am image.</b></div>
+    <div class="tagline">"He is HMML"</div>
     <svg class="sm" width="64" height="96" viewBox="0 0 64 96" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round">
       <g class="body"><circle cx="30" cy="13" r="9" fill="#fff"/><line x1="30" y1="22" x2="30" y2="56"/></g>
       <line class="arm a1" x1="30" y1="32" x2="14" y2="46"/>
