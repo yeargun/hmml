@@ -23,3 +23,6 @@ docs/_reader.tmp.ts
 
 # vendored dictionary snippet: fonts unused
 /dictionary-snippet-2026-6-6/fonts
+
+# stray root screenshots
+/*.png
