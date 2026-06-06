@@ -1,0 +1,9 @@
+node_modules
+dist
+*.log
+.DS_Store
+
+# Playwright
+/test-results
+/playwright-report
+/e2e/render.png

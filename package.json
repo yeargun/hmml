@@ -1,0 +1,42 @@
+{
+  "name": "hmml",
+  "version": "0.1.0",
+  "description": "HyperMedia Markup Language — a compact binary container that pairs HTML/CSS/SVG with raw (non-base64) image resources.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "SPEC.md", "README.md"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx examples/roundtrip.ts",
+    "demo:browser": "npm run build && node e2e/server.mjs",
+    "test": "vitest run",
+    "test:browser": "npm run build && playwright test",
+    "test:all": "npm run test && npm run test:browser"
+  },
+  "keywords": ["hmml", "binary", "html", "image", "container", "webp", "format", "hypermedia"],
+  "author": "Argun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeargun/hmml.git"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "@types/node": "^20.12.7",
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  }
+}
