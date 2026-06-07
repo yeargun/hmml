@@ -56,6 +56,9 @@
   .stage .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--mut);font:600 13px var(--mono)}
   .cap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:13px 4px 0;color:var(--mut);font-size:13px}
   .cap b{color:var(--ink)}.cap .hint{font-family:var(--mono);font-size:12px;color:#a0a0ad}
+  .cap-note{max-width:680px;margin:18px auto 0;text-align:center;color:var(--soft);font-size:clamp(15px,2vw,17px);line-height:1.65}
+  .cap-note em{font-style:italic;color:var(--mut)}
+  .cap-note strong{color:var(--ink);background:linear-gradient(180deg,transparent 56%,#dfe3ff 56%);padding:0 .1em;border-radius:3px}
 
   .stats{margin:28px auto 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font:600 12.5px/1 var(--mono);color:var(--mut)}
   .stats span{padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff}.stats span b{color:var(--ink)}
@@ -139,6 +142,7 @@
     <iframe id="hero-frame" title="A real food-delivery website rendered from one HMML file" scrolling="no"></iframe>
   </div>
   <div class="cap"><span>↑ A real food-delivery page - markup, images &amp; an SVG animation in <b>one .hmml</b>, <b id="fsave">…</b> smaller than the same page as base64. Watch the stick-man between the rows.</span><span class="hint">it says “I am image.”</span></div>
+  <p class="cap-note">Look closely: that's dozens of images inside an HTML layout - what everyone calls <em>“HTML with images.”</em> HMML folds the markup, the images and all into a single binary file. At which point the whole thing simply <strong>becomes an image.</strong></p>
 </div>
 <div class="wrap"><div class="stats">
   <span><b>__READER_GZIP__</b> reader</span><span><b>~830 MB/s</b> decode</span><span><b>25%</b> smaller than base64</span><span><b>0</b> dependencies</span>
