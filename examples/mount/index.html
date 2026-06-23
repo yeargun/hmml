@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>hmml mount() test harness</title>
+<!-- Loads the built ESM core + the mount renderer and exposes them for the
+     Playwright spec (e2e/mount.spec.ts) to drive. -->
+<div id="host"></div>
+<script type="module">
+  import * as HMML from "/dist/index.js";
+  import { mount, DEFAULT_CSP, createSandboxLoaderHtml } from "/dist/mount.js";
+  Object.assign(window, { HMML, mount, DEFAULT_CSP, createSandboxLoaderHtml });
+  window.__ready = true;
+</script>

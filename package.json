@@ -11,6 +11,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./mount": {
+      "types": "./dist/mount.d.ts",
+      "import": "./dist/mount.js",
+      "require": "./dist/mount.cjs"
     }
   },
   "files": ["dist", "SPEC.md", "README.md"],

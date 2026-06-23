@@ -57,6 +57,9 @@ filters, blend modes, SVG, `<canvas>`, CSS grid - all of it, for free.
   optional CRC32. Forward‑compatible: unknown chunks are skipped, so v2 won't break v1.
 - **Render however you like.** Resolve images to `blob:` object URLs (cheap to paint),
   `data:` URIs (self‑contained export), or keep `hmml:` refs and serve them yourself.
+- **Safe by default.** `mount()` ships trust tiers: no‑JS Shadow DOM for the common case,
+  or jail untrusted JS in a sandboxed iframe (no parent DOM, no cookies, no network). The
+  renderer is a separate import - the core reader carries none of it. See [Security](#security).
 
 ## Numbers
 
@@ -132,6 +135,64 @@ Use it from a plain `<script>` via CDN - exposes `window.HMML` (~3.7 KB gzip):
 > For the smallest payload, inline a decode-only build (~2 KB gzip) - that's what the
 > [landing page](https://hmml.pages.dev) does.
 
+## Security
+
+A `.hmml` can carry arbitrary HTML, CSS **and** JS. `unpack` hands you the markup + the
+raw bytes; **how you mount it is your security boundary.** The optional
+`@eddocu/hmml/mount` helper (a separate ~1.7 KB import - the core reader stays ~2 KB)
+makes the safe choice the default.
+
+**The principle:** you can't *sanitise* arbitrary JS into safety - you **confine** it.
+Only a sandboxed iframe confines JS. Shadow DOM isolates styles + the DOM tree (it fixes
+class-name collisions) but a `<script>` in a shadow root runs in **your** page with full
+access. So `mount` picks the isolation primitive per trust tier:
+
+| `trust` | primitive | JS | what it stops |
+| --- | --- | :---: | --- |
+| `static` *(default)* | Shadow DOM + sanitiser | ✗ stripped | scripts removed; CSS can't leak in or out |
+| `sandbox` | iframe `allow-scripts`¹ + CSP | ✓ jailed | opaque origin → no parent DOM, no host cookies/storage; `connect-src 'none'` → no network |
+| `isolated` | `sandbox` on a separate origin | ✓ jailed hard | all of the above, across an origin/process boundary |
+
+<sub>¹ deliberately **without** `allow-same-origin` - combining the two re-grants your origin and voids the sandbox.</sub>
+
+```ts
+import { unpack } from "@eddocu/hmml";
+import { mount } from "@eddocu/hmml/mount";
+
+const doc = await unpack(bytes);
+mount(el, doc);                        // secure by default — scripts never run
+mount(el, doc, { trust: "sandbox" });  // JS runs, jailed: no parent DOM, no network
+mount(el, doc, { trust: "isolated", origin: "https://sandbox.example.com" });
+```
+
+### What each tier does — and doesn't
+
+- **`static`** sanitises with the browser's native `Element.setHTML()` (zero bytes shipped).
+  Where that isn't available yet, pass your own - `{ sanitizer: DOMPurify.sanitize }` - or it
+  **transparently falls back to `sandbox`**; it never injects unsanitised markup into your page.
+  Caveats: a sanitiser may drop exotic/unknown elements, and `static` has no CSP, so it does **not**
+  block external `url()` in CSS - it stops scripts, not network/privacy beacons. For content that's
+  untrusted *and* must stay offline, use `sandbox`.
+- **`sandbox`** runs JS in an opaque origin under a strict CSP: no parent DOM, no cookies/storage,
+  no network. Residual risk is **CPU/RAM** (a hostile file can still spin the iframe's own thread) -
+  gate it with `loading="lazy"`/visibility and dispose it when offscreen. Jailed content can't measure
+  itself, so set `height`. `postMessage` out is allowed (a channel, not a leak of your data).
+- **`isolated`** is `sandbox` loaded from an origin **you host** - ship the loader from
+  `createSandboxLoaderHtml()` and serve it with a strong CSP response header. Use it for hostile
+  content or defence-in-depth against sandbox-bypass bugs.
+
+### Format-level concerns
+
+- **Integrity ≠ authenticity.** The optional CRC32 catches corruption, not tampering; there is no
+  signature yet, so don't infer provenance from a `.hmml`. (A signed `SIGN` chunk is planned, to let
+  you trust-gate scripts by author.)
+- **Resources are stored verbatim.** Raster bytes behind an `<img>` are inert, but an SVG pulled
+  inline, or `<object>`/`<use>` to external refs, can carry script - which is exactly why you render
+  through a trust tier instead of dropping markup into your live DOM.
+- **`toHTML()` / `createObjectUrls()` are *resolvers*, not sanitisers.** They re-stitch the document;
+  they don't make it safe. Pair them with `mount` (or your own sandboxed iframe) for anything you
+  didn't author yourself.
+
 ## How it works (the contract)
 
 A document is a signature + a stream of self‑describing chunks:
@@ -201,6 +262,11 @@ await decode(file, { codec: fflateCodec }); // custom id → pass it back
 
 ## API
 
+The package is **module-based and side-effect-free** (`"sideEffects": false`), so bundlers
+tree-shake to exactly what you import. Two entry points keep the renderer out of the reader:
+
+**`@eddocu/hmml`** - the core (read/write, no DOM):
+
 | Export | What it does |
 | --- | --- |
 | `pack(html \| input, opts?)` | One‑call encode (auto‑extracts `data:` URIs; gzip default) |
@@ -211,6 +277,16 @@ await decode(file, { codec: fflateCodec }); // custom id → pass it back
 | `sniffMime` / `extensionFor` / `toBase64` / `fromBase64` / `crc32` | Utilities |
 
 `HmmlDocument`: `{ html, resources: Map, meta, codecId, toHTML(), createObjectUrls() }`.
+
+**`@eddocu/hmml/mount`** - the optional DOM renderer (~1.7 KB; pulls in zero of it unless you import it):
+
+| Export | What it does |
+| --- | --- |
+| `mount(el, doc, opts?)` | Render into `el` under a trust tier (`static` \| `sandbox` \| `isolated`); returns `{ trust, element, dispose() }` |
+| `createSandboxLoaderHtml()` | Loader page to host on a separate origin for `trust: "isolated"` |
+| `DEFAULT_CSP` | The CSP applied inside sandbox/isolated frames |
+
+See [Security](#security) for the trust tiers and their guarantees.
 
 ## Development
 
@@ -226,8 +302,11 @@ npm run build         # dual ESM/CJS + IIFE global + .d.ts (minified) via tsup
 
 ## Status
 
-**v0 / draft.** The format (major version `1`) is implemented and tested end‑to‑end, but
-the spec may still evolve before a `1.0` tag. Feedback and breakage reports welcome.
+**v0 / draft.** The format (major version `1`) is implemented and tested end‑to‑end
+(unit + real-Chromium Playwright, including the `mount` trust tiers), but the spec may
+still evolve before a `1.0` tag. On the roadmap: more media MIME sniffing (video/audio)
+with lazy resolution, a worker decode path, and a signed `SIGN` chunk for authenticity.
+Feedback and breakage reports welcome.
 
 ## License
 

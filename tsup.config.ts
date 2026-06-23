@@ -1,7 +1,9 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  // index = the core (decode/encode/...); mount = the optional DOM renderer, kept a
+  // separate entry so `import "@eddocu/hmml"` never pulls iframe/shadow code into it.
+  entry: ["src/index.ts", "src/mount.ts"],
   // esm + cjs for npm consumers; iife exposes `window.HMML` for plain <script>
   // tags (so the playground HTML works straight from file://, no bundler).
   format: ["esm", "cjs", "iife"],

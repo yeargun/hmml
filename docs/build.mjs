@@ -16,6 +16,7 @@ import { markedHighlight } from "marked-highlight";
 import { encode, extract, gzipCodec, toBase64 } from "../dist/index.js";
 import { SAMPLES, UNIVERSE } from "./samples.mjs";
 import { buildFood, buildDictionary } from "./food.mjs";
+import { buildReddit } from "./reddit.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -150,14 +151,16 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 `;
 
 /* ---------- assemble ---------- */
-const [reader, samples, universe, food, dict] = await Promise.all([
+const [reader, samples, universe, food, dict, reddit] = await Promise.all([
   buildReader(),
   Promise.all(SAMPLES.map(encodeDef)),
   encodeDef(UNIVERSE),
   buildFood(),
   buildDictionary(),
+  buildReddit(),
 ]);
 const readerGzip = bytesFmt(reader.gzip);
+const redditB64 = toBase64(reddit.bytes); // inlined → the post's "open" button works offline (file://)
 
 let landing = await readFile(join(here, "landing.html"), "utf8");
 landing = landing
@@ -167,6 +170,8 @@ landing = landing
   .replaceAll("__FOOD_SIZE__", bytesFmt(food.hmmlBytes))
   .replaceAll("__FOOD_SAVE__", String(food.save))
   .replaceAll("__DICT_SIZE__", bytesFmt(dict.hmmlBytes))
+  .replaceAll("__REDDIT_B64__", () => JSON.stringify(redditB64))
+  .replaceAll("__REDDIT_SIZE__", bytesFmt(reddit.hmmlBytes))
   .replaceAll("__READER_GZIP__", readerGzip);
 
 await rm(out, { recursive: true, force: true });
@@ -174,6 +179,7 @@ await mkdir(out, { recursive: true });
 await writeFile(join(out, "index.html"), landing, "utf8");
 await writeFile(join(out, "food.hmml"), food.bytes);
 await writeFile(join(out, "dict.hmml"), dict.bytes);
+await writeFile(join(out, "reddit.hmml"), reddit.bytes);
 await writeFile(
   join(out, "docs.html"),
   await renderDoc(join(root, "README.md"), { title: "HMML - Docs", description: pkg.description, active: "docs" }),
@@ -189,6 +195,7 @@ console.log(`Site built -> ${out}/`);
 console.log(`  index.html  landing · inlined reader ${readerGzip} gzip · ${samples.length} live samples`);
 console.log(`  food.hmml   real website -> ${bytesFmt(food.hmmlBytes)} (${food.resources} images, ${food.save}% smaller than base64 HTML)`);
 console.log(`  dict.hmml   dictionary entry -> ${bytesFmt(dict.hmmlBytes)} (${dict.save}% smaller)`);
+console.log(`  reddit.hmml the meta Reddit post -> ${bytesFmt(reddit.hmmlBytes)} (${reddit.save}% smaller, inlined as base64)`);
 console.log(`  docs.html   README`);
 console.log(`  spec.html   SPEC`);
 for (const s of samples) console.log(`    sample ${s.id.padEnd(9)} ${s.hmml.padStart(8)} .hmml  (${s.save}% smaller)`);
