@@ -11,14 +11,14 @@ const DATA_URI = /data:([^,]*),([^"')\s]*)/gi;
 const REF = /hmml:([A-Za-z0-9_.\-/]+)/g;
 
 export interface ExtractOptions {
-  /** Decide whether a MIME is pulled out into a resource. Default: image/* and font/*. */
+  /** Decide whether a MIME is pulled out into a resource. Default: image/*, font/*, audio/*, video/* and application/font-woff. */
   accept?: (mime: string) => boolean;
   /** Prefix for generated resource ids. Default "r". */
   idPrefix?: string;
 }
 
 function defaultAccept(mime: string): boolean {
-  return mime.startsWith("image/") || mime.startsWith("font/") || mime === "application/font-woff";
+  return /^(image|font|audio|video)\//.test(mime) || mime === "application/font-woff";
 }
 
 function toMap(resources: Map<string, HmmlResource> | HmmlResource[]): Map<string, HmmlResource> {

@@ -17,30 +17,10 @@ function assertStreams(): void {
 }
 
 async function pump(transform: CompressionStream | DecompressionStream, input: Uint8Array): Promise<Uint8Array> {
-  const writer = transform.writable.getWriter();
-  const writeDone = (async () => {
-    await writer.write(input as BufferSource);
-    await writer.close();
-  })();
-  const reader = transform.readable.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) {
-      chunks.push(value);
-      total += value.byteLength;
-    }
-  }
-  await writeDone;
-  const out = new Uint8Array(total);
-  let off = 0;
-  for (const c of chunks) {
-    out.set(c, off);
-    off += c.byteLength;
-  }
-  return out;
+  // Pipe through the platform stream so writer/read failures have one owner.
+  // A rejected write must never be left as an unhandled parallel promise.
+  const body = new Blob([input as BlobPart]).stream().pipeThrough(transform);
+  return new Uint8Array(await new Response(body).arrayBuffer());
 }
 
 function streamCodec(id: number, format: "gzip" | "deflate" | "deflate-raw"): Codec {
@@ -58,11 +38,11 @@ function streamCodec(id: number, format: "gzip" | "deflate" | "deflate-raw"): Co
 }
 
 /** Raw DEFLATE (RFC 1951), smallest framing. */
-export const deflateRawCodec: Codec = streamCodec(1, "deflate-raw");
+export const deflateRawCodec: Codec = /* @__PURE__ */ streamCodec(1, "deflate-raw");
 /** gzip (RFC 1952). */
-export const gzipCodec: Codec = streamCodec(2, "gzip");
+export const gzipCodec: Codec = /* @__PURE__ */ streamCodec(2, "gzip");
 /** zlib/DEFLATE (RFC 1950). */
-export const deflateCodec: Codec = streamCodec(3, "deflate");
+export const deflateCodec: Codec = /* @__PURE__ */ streamCodec(3, "deflate");
 
 /** Resolve a built-in codec from a file-header id, for automatic decode. */
 export function builtinCodec(id: number): Codec | undefined {

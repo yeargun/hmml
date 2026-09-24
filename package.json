@@ -1,7 +1,7 @@
 {
   "name": "@eddocu/hmml",
-  "version": "0.1.0",
-  "description": "HyperMedia Markup Language - a tiny binary format where an image is HTML, SVG and a 3D space. Markup as text + images as raw bytes (no base64) in one file; ~2 KB reader. The native target for AI-generated media.",
+  "version": "0.2.0",
+  "description": "HMML: blueprint-first streaming binary documents with bounded media chunks, worker support, and zero runtime dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -16,10 +16,87 @@
       "types": "./dist/mount.d.ts",
       "import": "./dist/mount.js",
       "require": "./dist/mount.cjs"
+    },
+    "./encode": {
+      "types": "./dist/encode.d.ts",
+      "import": "./dist/encode.js",
+      "require": "./dist/encode.cjs"
+    },
+    "./decode": {
+      "types": "./dist/decode.d.ts",
+      "import": "./dist/decode.js",
+      "require": "./dist/decode.cjs"
+    },
+    "./encode-stream": {
+      "types": "./dist/encode-stream.d.ts",
+      "import": "./dist/encode-stream.js",
+      "require": "./dist/encode-stream.cjs"
+    },
+    "./decode-stream": {
+      "types": "./dist/decode-stream.d.ts",
+      "import": "./dist/decode-stream.js",
+      "require": "./dist/decode-stream.cjs"
+    },
+    "./codecs": {
+      "types": "./dist/codecs.d.ts",
+      "import": "./dist/codecs.js",
+      "require": "./dist/codecs.cjs"
+    },
+    "./markup": {
+      "types": "./dist/markup.d.ts",
+      "import": "./dist/markup.js",
+      "require": "./dist/markup.cjs"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "import": "./dist/worker.js",
+      "require": "./dist/worker.cjs"
+    },
+    "./pack": {
+      "types": "./dist/pack.d.ts",
+      "import": "./dist/pack.js",
+      "require": "./dist/pack.cjs"
+    },
+    "./decode/direct": {
+      "types": "./dist/decode-direct.d.ts",
+      "import": "./dist/decode-direct.js",
+      "require": "./dist/decode-direct.cjs"
+    },
+    "./decode-stream/direct": {
+      "types": "./dist/decode-stream-direct.d.ts",
+      "import": "./dist/decode-stream-direct.js",
+      "require": "./dist/decode-stream-direct.cjs"
+    },
+    "./decoder": {
+      "types": "./dist/decoder.d.ts",
+      "import": "./dist/decoder.js",
+      "require": "./dist/decoder.cjs"
+    },
+    "./worker-entry": {
+      "types": "./dist/decode-worker.d.ts",
+      "import": "./dist/decode-worker.js",
+      "require": "./dist/decode-worker.cjs"
+    },
+    "./frame": {
+      "types": "./dist/frame.d.ts",
+      "import": "./dist/frame.js",
+      "require": "./dist/frame.cjs"
     }
   },
-  "files": ["dist", "SPEC.md", "README.md"],
-  "sideEffects": false,
+  "files": [
+    "dist",
+    "SPEC.md",
+    "README.md",
+    "docs/streaming.md",
+    "docs/performance.md",
+    "docs/workers.md",
+    "docs/rendering.md"
+  ],
+  "sideEffects": [
+    "./dist/decode-worker.js",
+    "./dist/decode-worker.cjs",
+    "./dist/decode-worker.global.js"
+  ],
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "npm run build",
@@ -29,14 +106,27 @@
     "pg:bundle": "npm run pg:build && node playground/bundle.mjs",
     "playground": "npm run pg:build && node e2e/server.mjs",
     "bench": "npm run build && node bench/perf.mjs",
-    "size": "node bench/size.mjs",
+    "size": "npm run build && node bench/size.mjs",
     "site:build": "npm run build && node docs/build.mjs",
     "site:deploy": "npm run site:build && npx wrangler pages deploy site --project-name=hmml",
     "test": "vitest run",
     "test:browser": "npm run build && playwright test",
-    "test:all": "npm run test && npm run test:browser"
+    "test:all": "npm run test && npm run build && node --test test/package-bundles.mjs && playwright test",
+    "bench:stream": "npm run build && node bench/stream.mjs",
+    "bench:compression": "npm run build && node bench/compression.mjs",
+    "bench:workers": "npm run build && node bench/workers.mjs",
+    "test:package": "npm run build && node --test test/package-bundles.mjs"
   },
-  "keywords": ["hmml", "binary", "html", "image", "container", "webp", "format", "hypermedia"],
+  "keywords": [
+    "hmml",
+    "binary",
+    "html",
+    "image",
+    "container",
+    "webp",
+    "format",
+    "hypermedia"
+  ],
   "author": "Argun",
   "license": "MIT",
   "repository": {

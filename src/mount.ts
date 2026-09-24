@@ -1,5 +1,6 @@
 // mount() — render a decoded HMML document into the page under an explicit trust
-// tier. Secure by default: with no options, scripts never run.
+// tier. Default static rendering sanitizes when supported, otherwise falls back
+// to an opaque sandbox; scripts are never injected into the host page.
 //
 // The hard truth this module encodes: you cannot make untrusted JS "safe" by
 // inspecting it. Safety comes from *confinement* by the browser, not inspection.
@@ -11,7 +12,7 @@
 //              CSS-isolated. The default. No JS, ever.
 //   sandbox  — iframe sandbox="allow-scripts" (NEVER allow-same-origin) + a CSP.
 //              JS runs but in an opaque origin: no parent DOM, no host cookies/
-//              storage, and `connect-src 'none'` cuts the network (no exfiltration).
+//              storage. CSP restricts subresource/fetch access, not all navigation.
 //   isolated — sandbox, but loaded from a SEPARATE origin you host. Defense in depth
 //              for hostile content; requires an `origin` serving the loader.
 //
@@ -24,7 +25,7 @@ import type { HmmlDocument } from "./types";
 export type Trust = "static" | "sandbox" | "isolated";
 
 export interface MountOptions {
-  /** Trust tier. Default "static" — secure by default, scripts stripped. */
+  /** Default "static": sanitize, or fall back to a script-capable sandbox. */
   trust?: Trust;
   /**
    * static-only: sanitize the markup with this function instead of the native
@@ -39,11 +40,12 @@ export interface MountOptions {
    * "allow-same-origin" is always stripped — it would void the jail.
    */
   sandboxTokens?: string[];
-  /**
-   * sandbox/isolated: iframe height. Jailed (cross-origin) content cannot report
-   * its own size to the host, so this can't be inferred. Default "480px".
-   */
+  /** sandbox/isolated: fixed iframe viewport height. Default "480px". Use createFrame for auto sizing. */
   height?: string;
+  /** sandbox/isolated: iframe viewport width. Default "100%". Parent controls placement. */
+  width?: string;
+  /** Accessible iframe title. */
+  title?: string;
   /** Class applied to the created host element (shadow host or iframe). */
   className?: string;
   /** isolated-only: origin (e.g. "https://sandbox.example.com/hmml") hosting the loader. */
@@ -61,9 +63,10 @@ export interface MountHandle {
 
 /**
  * The CSP applied inside sandbox/isolated frames. The opaque origin already blocks
- * host access; this additionally cuts the network (`connect-src 'none'`) and pins
+ * host access; this additionally restricts fetch (`connect-src 'none'`) and pins
  * every resource to in-document bytes (blob:/data:). `script-src 'unsafe-inline'`
- * is intentional — the *confinement* is the sandbox, not script gating.
+ * is intentional — the *confinement* is the sandbox, not script gating. This does
+ * not prevent a script from navigating its own frame to an external URL.
  */
 export const DEFAULT_CSP =
   "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; " +
@@ -88,7 +91,10 @@ function makeIframe(opts: MountOptions): HTMLIFrameElement {
   tokens.delete("allow-same-origin"); // never — re-grants the host origin, voiding the jail
   iframe.setAttribute("sandbox", [...tokens].join(" "));
   iframe.setAttribute("referrerpolicy", "no-referrer");
-  iframe.style.cssText = `width:100%;height:${opts.height ?? "480px"};border:0;display:block;background:#fff`;
+  iframe.style.cssText = "border:0;display:block;background:#fff";
+  iframe.style.width = opts.width ?? "100%";
+  iframe.style.height = opts.height ?? "480px";
+  iframe.title = opts.title ?? "HMML document";
   if (opts.className) iframe.className = opts.className;
   return iframe;
 }
@@ -107,21 +113,26 @@ function mountIsolated(target: Element, doc: HmmlDocument, opts: MountOptions): 
   if (!opts.origin) {
     throw new Error("trust:'isolated' needs an `origin` serving the HMML loader (see createSandboxLoaderHtml).");
   }
-  const loaderOrigin = new URL(opts.origin).origin;
+  const loaderUrl = new URL(opts.origin);
   const iframe = makeIframe(opts);
   const html = withCsp(doc.toHTML(), opts.csp ?? DEFAULT_CSP);
-  const buf = new Uint32Array(2);
-  (globalThis.crypto ?? ({} as Crypto)).getRandomValues?.(buf);
-  const channel = `${buf[0]!.toString(36)}${buf[1]!.toString(36)}`;
+  const buf = crypto.getRandomValues(new Uint32Array(4));
+  const channel = [...buf].map(n => n.toString(16).padStart(8, "0")).join("");
+  let sent = false;
 
   const onMsg = (e: MessageEvent) => {
-    if (e.source !== iframe.contentWindow || e.origin !== loaderOrigin) return;
+    // Even a remote loader has an opaque origin because allow-same-origin is
+    // absent. Authenticate its WindowProxy and random channel, not its URL origin.
+    if (sent || e.source !== iframe.contentWindow || e.origin !== "null") return;
     if ((e.data as any)?.type === "hmml:ready" && (e.data as any).channel === channel) {
-      iframe.contentWindow!.postMessage({ type: "hmml:doc", channel, html }, loaderOrigin);
+      sent = true;
+      iframe.contentWindow!.postMessage({ type: "hmml:doc", channel, html }, "*");
+      removeEventListener("message", onMsg);
     }
   };
   addEventListener("message", onMsg);
-  iframe.src = opts.origin + (opts.origin.includes("?") ? "&" : "?") + "ch=" + channel;
+  loaderUrl.searchParams.set("ch", channel);
+  iframe.src = loaderUrl.href;
   target.appendChild(iframe);
   let live = true;
   return {
@@ -177,9 +188,9 @@ function mountStatic(target: Element, doc: HmmlDocument, opts: MountOptions): Mo
 }
 
 /**
- * Render a decoded HMML document into `target`. Secure by default (`trust:'static'`
- * strips all scripts). Opt into JS with `trust:'sandbox'` (jailed) or
- * `trust:'isolated'` (jailed + a separate origin).
+ * Render a completed document into `target`. Static sanitization falls back to
+ * a script-capable sandbox if no sanitizer is available. For progressive previews
+ * with document scripts disabled, use the separate createFrame entry.
  */
 export function mount(target: Element, doc: HmmlDocument, options: MountOptions = {}): MountHandle {
   if (typeof document === "undefined" || typeof DOMParser === "undefined") hostMissingDom();
@@ -204,7 +215,7 @@ export function createSandboxLoaderHtml(): string {
     "<!doctype html><meta charset=utf-8><title>hmml sandbox</title>" +
     "<script>(function(){var c=new URLSearchParams(location.search).get('ch');" +
     "addEventListener('message',function(e){var d=e.data;" +
-    "if(d&&d.type==='hmml:doc'&&d.channel===c){document.open();document.write(d.html);document.close();}});" +
+    "if(e.source===parent&&d&&d.type==='hmml:doc'&&d.channel===c){document.open();document.write(d.html);document.close();}});" +
     "parent.postMessage({type:'hmml:ready',channel:c},'*');})();<\/script>"
   );
 }

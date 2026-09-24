@@ -18,6 +18,32 @@ export interface HmmlInput {
   meta?: Record<string, unknown>;
 }
 
+/** Fetch/Blob bodies or an async iterable of byte chunks. */
+export type ByteSource = ReadableStream<Uint8Array> | AsyncIterable<Uint8Array>;
+
+/** A resource whose bytes need not be resident in memory. Length may be unknown. */
+export interface HmmlStreamResource {
+  id: string;
+  mime: string;
+  byteLength?: number;
+  data: ByteSource;
+}
+
+export interface HmmlStreamInput extends Omit<HmmlInput, "resources"> {
+  /** Wire order is caller order: put critical images/fonts before bulk media. */
+  resources?: Iterable<HmmlResource | HmmlStreamResource> | AsyncIterable<HmmlResource | HmmlStreamResource>;
+}
+
+/** Every data event has passed its chunk CRC (if present); resource-end validates total length. */
+export type HmmlEvent =
+  | { type: "header"; version: { major: number; minor: number }; codecId: number }
+  | { type: "markup"; html: string }
+  | { type: "metadata"; meta: Record<string, unknown> }
+  | { type: "resource-start"; id: string; mime: string; byteLength?: number }
+  | { type: "resource-data"; id: string; data: Uint8Array }
+  | { type: "resource-end"; id: string }
+  | { type: "end" };
+
 /**
  * A compression codec. Built-ins live in `codecs.ts`. Methods may be sync or
  * async (the native `CompressionStream` codecs are async); the encoder/decoder
@@ -34,22 +60,84 @@ export interface Codec {
 }
 
 export interface EncodeOptions {
+  /** DATA payload size, 1..1 MiB. Default: 64 KiB. */
+  chunkSize?: number;
   /** Codec for MARK/META payloads. Default: `storeCodec` (no compression). */
   codec?: Codec;
-  /** Compress the markup chunk. Default: true when a non-store codec is given. */
+  /** Try compressing markup; retain only if smaller. Default: true with a non-store codec. */
   compressMarkup?: boolean;
-  /** Compress the metadata chunk. Default: true when a non-store codec is given. */
+  /** Try compressing metadata; retain only if smaller. Default: true with a non-store codec. */
   compressMeta?: boolean;
   /** Append a CRC32 to every chunk for integrity checking. Default: false. */
   crc?: boolean;
 }
 
-export interface DecodeOptions {
+export interface DecodeLimits {
   /**
    * Codec to use for compressed chunks. Optional - if the file's codec id maps
    * to a built-in, it is resolved automatically. Required only for custom ids.
    */
   codec?: Codec;
+  /** Maximum stored AND expanded MARK/META bytes, per chunk. Default: 16 MiB. */
+  maxTextBytes?: number;
+  /** Maximum resource data bytes, per resource. Default: Number.MAX_SAFE_INTEGER; set a lower application quota. */
+  maxResourceBytes?: number;
+  /** Maximum resource count. Default: 100,000. */
+  maxResources?: number;
+}
+
+/** Inputs usable by the convenience API. URL/Blob inputs avoid a main-thread file copy. */
+export type DecodeInput = Uint8Array | Blob | string | URL | ByteSource;
+export type WorkerMode = "auto" | boolean;
+
+export interface DirectDecodeOptions extends DecodeLimits {
+  signal?: AbortSignal;
+  /** Called once after validated markup, before assets. Awaited to preserve backpressure. */
+  onMarkup?: (html: string) => void | Promise<void>;
+}
+
+export interface DecodeOptions extends DirectDecodeOptions {
+  /** Auto reuses a worker in browser windows; false stays direct; true requires a worker. */
+  worker?: WorkerMode;
+  /** Transfer a whole Uint8Array buffer to the worker, detaching it. Default: false (preserve input). */
+  transfer?: boolean;
+}
+
+export interface DirectStreamDecodeOptions extends DecodeLimits {
+  /** Maximum bytes per resource-data event. Default: 64 KiB. */
+  chunkSize?: number;
+  signal?: AbortSignal;
+}
+
+export interface StreamDecodeOptions extends DirectStreamDecodeOptions {
+  worker?: WorkerMode;
+  transfer?: boolean;
+}
+
+export interface DecoderOptions {
+  worker?: WorkerMode;
+  /** Optional factory for application-owned bundler/CSP worker setup. Created lazily, reused. */
+  workerFactory?: () => Worker;
+  /** Concurrent worker requests (one shared worker, including fetches). Default: 4. */
+  maxConcurrent?: number;
+  /** Bound the readiness handshake. Default: 5000 ms. Auto caches startup failures. */
+  startupTimeoutMs?: number;
+}
+
+export interface Decoder {
+  decode(input: DecodeInput, options?: DecodeOptions): Promise<HmmlDocument>;
+  decodeStream(input: DecodeInput, options?: StreamDecodeOptions): AsyncGenerator<HmmlEvent>;
+  /** Cancel queued/active requests and terminate this decoder's worker. */
+  dispose(): void;
+}
+
+/** Structured-cloneable data. Resolver methods are attached in the receiving realm. */
+export interface HmmlDocumentData {
+  version: { major: number; minor: number };
+  codecId: number;
+  html: string;
+  resources: Map<string, HmmlResource>;
+  meta: Record<string, unknown>;
 }
 
 /** How `toHTML` rewrites `hmml:<id>` references. */
