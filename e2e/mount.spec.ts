@@ -27,6 +27,18 @@ test.beforeEach(async ({ page }) => {
   await page.waitForFunction(() => (window as any).__ready === true, undefined, { timeout: 20000 });
 });
 
+test("isolated loader exchanges a document with an opaque-origin frame", async ({ page }) => {
+  await page.evaluate(async () => {
+    const { mount } = await import(String("/dist/mount.js"));
+    const { decode } = await import(String("/dist/decode-direct.js"));
+    const { encode } = await import(String("/dist/encode.js"));
+    mount(document.getElementById("host")!, await decode(await encode({ html: "<h1>Remote loader worked</h1>" })), {
+      trust: "isolated", origin: "http://localhost:5188/__test__/loader", width: "320px", height: "200px",
+    });
+  });
+  await expect(page.frameLocator("#host iframe").locator("h1")).toHaveText("Remote loader worked");
+});
+
 test("secure by default: no trust option → scripts never run in the host", async ({ page }) => {
   const out = await page.evaluate(async (html) => {
     const HMML = (window as any).HMML;

@@ -29,8 +29,8 @@ const bytesFmt = (n) => (n < 1024 ? n + " B" : (n / 1024).toFixed(1) + " KB");
 /* ---------- 1. decode-only reader, inlined into the page ---------- */
 async function buildReader() {
   const tmp = join(here, "_reader.tmp.ts");
-  const idx = join(root, "src", "index.ts").replace(/\\/g, "/");
-  await writeFile(tmp, `export { decode, fromBase64 } from "${idx}";`);
+  const source = join(root, "src").replace(/\\/g, "/");
+  await writeFile(tmp, `export { decode } from "${source}/decode-direct.ts"; export { fromBase64 } from "${source}/base64.ts";`);
   const res = await esbuild({
     entryPoints: [tmp],
     bundle: true,
@@ -91,7 +91,11 @@ function processHeadings(html) {
 }
 function rewriteLinks(html) {
   return html
-    .replace(/href="\.?\/?SPEC\.md"/g, 'href="spec.html"')
+    .replace(/href="(?:\.\.?\/)?SPEC\.md"/g, 'href="spec.html"')
+    .replace(/href="(?:\.\/)?(?:docs\/)?streaming\.md"/g, 'href="streaming.html"')
+    .replace(/href="(?:\.\/)?(?:docs\/)?performance\.md"/g, 'href="performance.html"')
+    .replace(/href="(?:\.\/)?(?:docs\/)?workers\.md"/g, 'href="workers.html"')
+    .replace(/href="(?:\.\/)?(?:docs\/)?rendering\.md"/g, 'href="rendering.html"')
     .replace(/href="(\.\/)?playground[^"]*"/g, (m) => `href="${REPO}/tree/main/${m.slice(6, -1).replace(/^\.\//, "")}"`)
     .replace(/href="(\.\/)?\.gitignore"/g, `href="${REPO}"`);
 }
@@ -187,9 +191,15 @@ await writeFile(
 );
 await writeFile(
   join(out, "spec.html"),
-  await renderDoc(join(root, "SPEC.md"), { title: "HMML Specification (v1)", description: "HMML binary format specification.", active: "spec" }),
+  await renderDoc(join(root, "SPEC.md"), { title: "HMML Specification (v2)", description: "HMML binary format specification.", active: "spec" }),
   "utf8",
 );
+
+for (const [name, title] of [["streaming", "HMML Streaming"], ["workers", "HMML Worker Instances"], ["rendering", "HMML Rendering"], ["performance", "HMML Measurements"]]) {
+  await writeFile(join(out, `${name}.html`), await renderDoc(join(here, `${name}.md`), {
+    title, description: pkg.description, active: "docs",
+  }), "utf8");
+}
 
 console.log(`Site built -> ${out}/`);
 console.log(`  index.html  landing · inlined reader ${readerGzip} gzip · ${samples.length} live samples`);

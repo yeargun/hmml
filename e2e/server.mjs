@@ -2,6 +2,10 @@
 // Used by Playwright (and by `npm run demo:browser`) to serve the built lib,
 // the example page and the PNG helper over HTTP so ES module imports work.
 import { createServer } from "node:http";
+import { createGzip, constants } from "node:zlib";
+import { gzipCodec } from "../dist/codecs.js";
+import { encodeStream } from "../dist/encode-stream.js";
+import { createSandboxLoaderHtml } from "../dist/mount.js";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 
@@ -23,6 +27,33 @@ const TYPES = {
 const server = createServer(async (req, res) => {
   try {
     let p = decodeURIComponent((req.url || "/").split("?")[0]);
+    if (p === "/__test__/loader") {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      res.end(createSandboxLoaderHtml());
+      return;
+    }
+    // A slow, HTTP-gzipped fixture proves markup can arrive before the media.
+    if (p === "/__test__/stream.hmml") {
+      res.writeHead(200, { "content-type": "application/octet-stream", "content-encoding": "gzip" });
+      const gzip = createGzip();
+      gzip.pipe(res);
+      res.on("close", () => gzip.destroy());
+      async function* resources() {
+        await new Promise(resolve => setTimeout(resolve, 700));
+        yield { id: "hero", mime: "image/svg+xml", data: new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"><rect width="80" height="40" fill="green"/></svg>') };
+      }
+      const internal = new URL(req.url, "http://localhost").searchParams.has("internal");
+      const html = '<h2>Blueprint is ready</h2><img src="hmml:hero" width="80" height="40" alt="A green rectangle">';
+      for await (const bytes of encodeStream({ html: internal ? html + "<p>Compressed blueprint</p>".repeat(100) : html, resources: resources() }, { crc: true, codec: internal ? gzipCodec : undefined })) {
+        if (res.destroyed) break;
+        gzip.write(bytes);
+        // Explicit flush makes the test deterministic. A production CDN's
+        // buffering and flush policy must be measured separately.
+        gzip.flush(constants.Z_SYNC_FLUSH);
+      }
+      gzip.end();
+      return;
+    }
     if (p === "/") {
       // Redirect so relative URLs on the page resolve under /playground/.
       res.writeHead(302, { location: "/playground/" });

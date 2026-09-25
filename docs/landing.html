@@ -175,7 +175,7 @@
   <p class="cap-note">Look closely: that's dozens of images inside an HTML layout - what everyone calls <em>“HTML with images.”</em> HMML folds the markup, the images and all into a single binary file. At which point the whole thing simply <strong>becomes an image.</strong></p>
 </div>
 <div class="wrap"><div class="stats">
-  <span><b>__READER_GZIP__</b> reader</span><span><b>~830 MB/s</b> decode</span><span><b>25%</b> smaller than base64</span><span><b>0</b> dependencies</span>
+  <span><b>__READER_GZIP__</b> reader</span><span><b>blueprint first</b> streaming</span><span><b>25%</b> smaller than base64</span><span><b>0</b> dependencies</span>
 </div></div>
 </header>
 
@@ -187,7 +187,7 @@
     <div class="col"><div class="n">01</div><h3>Composable, not flattened</h3><p>A photo, an icon, a chart, a 3D scene - an image crushes them into one raster. HMML keeps each as itself: layered, addressable, recomposable.</p></div>
     <div class="col"><div class="n">02</div><h3>Fine-grained primitives</h3><p>Create and edit at the grain of an element, a transform, a keyframe - change one node, not the whole render. Diff it, version it, remix it.</p></div>
     <div class="col"><div class="n">03</div><h3>Editable, not frozen</h3><p>Restyle, re-localize, animate after the fact. Generated output that stays <em>source</em> - not a screenshot you can only regenerate.</p></div>
-    <div class="col"><div class="n">04</div><h3>Native to models</h3><p>Models already write HTML, CSS and SVG. HMML just seals that output, with raw media, into one portable contract - a ~2 KB reader opens it anywhere.</p></div>
+    <div class="col"><div class="n">04</div><h3>Native to models</h3><p>Models already write HTML, CSS and SVG. HMML just seals that output, with raw media, into one portable contract - a small reader opens it in browsers and workers.</p></div>
   </div>
   <p class="coda">Will models evolve to emit this directly? <em>Maybe. Maybe not.</em> But “image” is already an overloaded word - photo, icon, chart, scene, animation, all crushed into one frozen raster. HMML un-conflates it, and earns its use cases either way. <span class="muted2">Or maybe pixels were fine all along. Let’s see.</span></p>
 </div></section>
@@ -244,11 +244,12 @@
 <section><div class="wrap">
   <div class="eyebrow">the contract</div>
   <h2>bits &amp; bytes &amp; a contract.</h2>
-  <p class="sub">A PNG-style signature, then self-describing chunks. Markup stays text; images stay raw. Unknown chunks are skipped - it grows without breaking. <a href="spec.html" style="color:var(--accent)">Full spec →</a></p>
+  <p class="sub">HMML v2 requires the blueprint first, then bounded media chunks. Images, video and audio stay as raw bytes. Strict ordering and end markers detect incomplete files. <a href="spec.html" style="color:var(--accent)">Full spec →</a></p>
   <div class="contract">
     <div class="sig">89 'H' 'M' 'M' 'L' 0D 0A 1A 0A&nbsp;&nbsp;·&nbsp;&nbsp;major · minor · codec</div>
-    <div class="row"><div class="tg">MARK</div><div class="ds"><b>the markup</b> - HTML / CSS / SVG / JS, gzip-able text</div></div>
-    <div class="row"><div class="tg">RSRC</div><div class="ds"><b>a resource</b> - id + mime + <b>raw bytes</b> (no base64)</div></div>
+    <div class="row"><div class="tg">MARK</div><div class="ds"><b>the blueprint, always first</b> - HTML / CSS / SVG / JS, optionally compressed</div></div>
+    <div class="row"><div class="tg">RSRC</div><div class="ds"><b>a resource descriptor</b> - id + MIME + optional 64-bit length</div></div>
+    <div class="row"><div class="tg">DATA</div><div class="ds">bounded raw media bytes; repeated as needed, then <b>REND</b></div></div>
     <div class="row"><div class="tg">META</div><div class="ds">JSON metadata</div></div>
     <div class="row"><div class="tg">ENDF</div><div class="ds">end marker · markup points at resources with <b>hmml:&lt;id&gt;</b></div></div>
   </div>

@@ -12,14 +12,18 @@
  * const file = await encode({ html, resources, meta: { title: "Card" } }, { codec: gzipCodec });
  *
  * const doc = await decode(file);
- * document.body.innerHTML = doc.toHTML(); // resources inlined as data URIs
+ * const { createFrame } = await import("@eddocu/hmml/frame");
+ * await createFrame(document.body).load(doc);
  * ```
  */
 
-export { pack, unpack } from "./pack";
+export { pack } from "./pack";
 export type { PackOptions } from "./pack";
+export { encodeStream } from "./encode-stream";
+export { decodeStream } from "./decode-stream";
 export { encode } from "./encode";
-export { decode } from "./decode";
+export { createDecoder, disposeDecoder } from "./decoder";
+export { decode, decode as unpack } from "./decode";
 export { extract, inlineDataUris, inlineObjectUrls } from "./markup";
 export type { ExtractOptions } from "./markup";
 
@@ -36,11 +40,24 @@ export {
   REF_SCHEME,
   CHUNK_MARK,
   CHUNK_RSRC,
+  CHUNK_DATA,
+  CHUNK_REND,
   CHUNK_META,
   CHUNK_ENDF,
 } from "./constants";
 
 export type {
+  DecodeInput,
+  Decoder,
+  DecoderOptions,
+  DirectDecodeOptions,
+  DirectStreamDecodeOptions,
+  WorkerMode,
+  ByteSource,
+  HmmlEvent,
+  HmmlStreamInput,
+  HmmlStreamResource,
+  StreamDecodeOptions,
   HmmlResource,
   HmmlInput,
   HmmlDocument,

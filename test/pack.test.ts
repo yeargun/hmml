@@ -13,13 +13,13 @@ function img(n: number, seed: number): Uint8Array {
 }
 
 describe("pack / unpack", () => {
-  it("packs an HTML string (auto-extract, gzip default) and round-trips", async () => {
+  it("packs an HTML string (auto-extract, store default) and round-trips", async () => {
     const png = img(400, 5);
     const html = `<img src="data:image/png;base64,${toBase64(png)}">`;
     const bytes = await pack(html, { meta: { t: 1 } });
 
     const doc = await unpack(bytes);
-    expect(doc.codecId).toBe(2); // gzip is the pack default
+    expect(doc.codecId).toBe(0); // HTTP compression belongs to the CDN
     expect(doc.resources.size).toBe(1);
     expect(doc.meta).toEqual({ t: 1 });
     expect(doc.toHTML()).toBe(html);

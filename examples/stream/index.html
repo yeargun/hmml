@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>HMML worker streaming example</title>
+<style>
+  body { font: 16px system-ui; max-width: 760px; margin: 40px auto; padding: 16px; }
+  img { max-width: 100%; }
+  pre { white-space: pre-wrap; }
+</style>
+<h1>HMML: blueprint first, media next</h1>
+<p>This example loads a known local fixture. The worker and decoder load only after clicking Open.</p>
+<button id="open">Open document</button> <button id="cancel" disabled>Cancel</button>
+<pre id="status">Ready.</pre>
+<section id="stage"></section>
+<script type="module">
+  let controller;
+  let worker;
+  let active = false;
+  const urls = [];
+  const status = document.querySelector('#status');
+  const stage = document.querySelector('#stage');
+  const open = document.querySelector('#open');
+  const cancel = document.querySelector('#cancel');
+  const dispose = () => { for (const url of urls.splice(0)) URL.revokeObjectURL(url); };
+  open.onclick = async () => {
+    if (active) return;
+    active = true;
+    open.disabled = true;
+    cancel.disabled = false;
+    dispose();
+    stage.replaceChildren();
+    controller = new AbortController();
+    const parts = new Map();
+    try {
+      const { decodeInWorker } = await import('../../dist/worker.js');
+      worker ??= new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+      for await (const event of decodeInWorker(worker, '/__test__/stream.hmml', { signal: controller.signal })) {
+        status.textContent = event.type;
+        if (event.type === 'markup') {
+          // This fixture is authored by this repo. Use the existing mount trust
+          // boundary or a sanitizer for arbitrary HMML; parsing is not sanitization.
+          const template = document.createElement('template');
+          template.innerHTML = event.html;
+          // Avoid trying to fetch unresolved hmml: URLs while assets arrive.
+          for (const img of template.content.querySelectorAll('img[src^="hmml:"]')) {
+            img.dataset.hmml = img.getAttribute('src').slice(5);
+            img.removeAttribute('src');
+          }
+          stage.append(template.content);
+        } else if (event.type === 'resource-start') {
+          parts.set(event.id, { mime: event.mime, chunks: [] });
+        } else if (event.type === 'resource-data') {
+          parts.get(event.id).chunks.push(event.data);
+        } else if (event.type === 'resource-end') {
+          const resource = parts.get(event.id);
+          const url = URL.createObjectURL(new Blob(resource.chunks, { type: resource.mime }));
+          urls.push(url);
+          for (const img of stage.querySelectorAll('img[data-hmml]')) {
+            if (img.dataset.hmml === event.id) img.src = url;
+          }
+          parts.delete(event.id);
+        }
+      }
+    } catch (error) {
+      status.textContent = controller.signal.aborted ? 'Cancelled.' : String(error);
+    } finally {
+      parts.clear();
+      active = false;
+      open.disabled = false;
+      cancel.disabled = true;
+    }
+  };
+  cancel.onclick = () => controller?.abort();
+  addEventListener('pagehide', () => { controller?.abort(); worker?.terminate(); dispose(); });
+</script>

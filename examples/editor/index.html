@@ -1,0 +1,55 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HMML attachment editor</title>
+<style>
+  body { font: 16px system-ui; margin: 32px; background: #f3f4f5; color: #24313d }
+  button, input { font: inherit; margin-right: 12px }
+  #attachments { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; align-items: start }
+  article { width: 380px; max-width: 100%; background: white; border: 1px solid #bfc8d0; border-radius: 8px; overflow: hidden; resize: horizontal }
+  header { padding: 12px; display: flex; justify-content: space-between; background: #e6eaee }
+  header span { overflow-wrap: anywhere }
+  .status { padding: 8px 12px; font-size: 13px }
+</style>
+<h1>HMML attachments</h1>
+<p>Each attachment gets its own isolated viewport. All decodes share one worker.</p>
+<button id="add">Add delayed sample</button>
+<input id="files" type="file" accept=".hmml" multiple aria-label="Open HMML documents">
+<p>Drag an attachment’s lower-right corner to change its viewport width. Height follows its content.</p>
+<main id="attachments"></main>
+<script type="module">
+  import { createDecoder } from '../../dist/decoder.js';
+  import { createFrame } from '../../dist/frame.js';
+  const decoder = createDecoder({ worker: 'auto', maxConcurrent: 4 });
+  const live = new Set();
+  let samples = 0;
+  async function add(input, title) {
+    const card = document.createElement('article');
+    const header = document.createElement('header');
+    const name = document.createElement('span'); name.textContent = title;
+    const remove = document.createElement('button'); remove.textContent = 'Remove';
+    const status = document.createElement('div'); status.className = 'status'; status.textContent = 'Opening…';
+    const slot = document.createElement('div');
+    header.append(name, remove); card.append(header, status, slot);
+    document.querySelector('#attachments').append(card);
+    const controller = new AbortController();
+    const frame = createFrame(slot, { height: 'auto', minHeight: 80, maxHeight: 600, title });
+    const dispose = () => { controller.abort(); frame.dispose(); card.remove(); live.delete(dispose); };
+    remove.onclick = dispose; live.add(dispose);
+    try {
+      for await (const event of decoder.decodeStream(input, { signal: controller.signal, maxResourceBytes: 128 * 1024 * 1024 })) {
+        await frame.write(event, { transfer: true });
+        if (event.type === 'markup') status.textContent = 'Blueprint ready · receiving media…';
+      }
+      status.textContent = 'Ready';
+    } catch (error) {
+      if (!controller.signal.aborted) { status.textContent = error.message; frame.dispose(); }
+    }
+  }
+  document.querySelector('#add').onclick = () => add('/__test__/stream.hmml', `Sample ${++samples}`);
+  document.querySelector('#files').onchange = event => {
+    for (const file of event.target.files) void add(file, file.name);
+    event.target.value = '';
+  };
+  addEventListener('pagehide', () => { for (const dispose of live) dispose(); decoder.dispose(); });
+</script>

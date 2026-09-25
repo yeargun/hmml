@@ -1,38 +1,29 @@
-// Measures how small the library bundles for end users. Bundles a few import
-// shapes with esbuild (minified) and reports raw / gzip / brotli sizes.
-//
-//   node bench/size.mjs
-import { build } from "esbuild";
-import { rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { brotliCompressSync, gzipSync } from "node:zlib";
+// Measure actual package exports, including consumers which retain code splitting.
+import { bundleConsumer, reachableBundle } from './bundle.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const index = join(here, "..", "src", "index.ts").replace(/\\/g, "/");
-
-async function measure(label, entry) {
-  const tmp = join(here, "_entry.tmp.ts");
-  await writeFile(tmp, entry);
-  const res = await build({ entryPoints: [tmp], bundle: true, minify: true, format: "esm", target: "es2020", write: false, legalComments: "none" });
-  await rm(tmp, { force: true });
-  const buf = Buffer.from(res.outputFiles[0].contents);
-  return { label, min: buf.length, gzip: gzipSync(buf, { level: 9 }).length, brotli: brotliCompressSync(buf).length };
+const shapes = [
+  ['pack + unpack', "export { pack, unpack } from '@eddocu/hmml';"],
+  ['decode/direct', "export { decode } from '@eddocu/hmml/decode/direct';"],
+  ['decode-stream/direct', "export { decodeStream } from '@eddocu/hmml/decode-stream/direct';"],
+  ['decoder instance', "export { createDecoder } from '@eddocu/hmml/decoder';"],
+  ['worker implementation', "import '@eddocu/hmml/worker-entry';"],
+  ['decode (auto worker)', "export { decode } from '@eddocu/hmml/decode';"],
+  ['encode + extract', "export { encode, extract } from '@eddocu/hmml';"],
+  ['decodeStream (auto worker)', "export { decodeStream } from '@eddocu/hmml/decode-stream';"],
+  ['root decodeStream', "export { decodeStream } from '@eddocu/hmml';"],
+  ['encodeStream', "export { encodeStream } from '@eddocu/hmml';"],
+  ['worker client', "export { decodeInWorker } from '@eddocu/hmml/worker';"],
+  ['progressive iframe', "export { createFrame } from '@eddocu/hmml/frame';"],
+  ['all root exports', "export * from '@eddocu/hmml';"],
+];
+const kb = n => (n / 1024).toFixed(2).padStart(7);
+console.log('Built package ESM, minified KiB (gzip level 9):');
+console.log('Import                          Flat raw  Flat gzip  Flat br  Initial gzip');
+for (const [label, source] of shapes) {
+  const flat = reachableBundle(await bundleConsumer(source));
+  const initial = reachableBundle(await bundleConsumer(source, { splitting: true }), false);
+  console.log(label.padEnd(30), kb(flat.raw), kb(flat.gzip), kb(flat.brotli), kb(initial.gzip));
 }
-
-const kb = (n) => (n / 1024).toFixed(2) + " KB";
-
-const rows = [];
-rows.push(await measure("pack + unpack (typical app)", `export { pack, unpack } from "${index}";`));
-rows.push(await measure("decode only (the reader)", `export { decode } from "${index}";`));
-rows.push(await measure("encode + extract (the writer)", `export { encode, extract } from "${index}";`));
-rows.push(await measure("everything", `export * from "${index}";`));
-
-const w = Math.max(...rows.map((r) => r.label.length));
-console.log("\nBundle sizes (minified):\n");
-console.log("  " + "import".padEnd(w) + "   raw       gzip      brotli");
-console.log("  " + "-".repeat(w) + "   -------   -------   -------");
-for (const r of rows) {
-  console.log("  " + r.label.padEnd(w) + "   " + kb(r.min).padStart(7) + "   " + kb(r.gzip).padStart(7) + "   " + kb(r.brotli).padStart(7));
-}
-console.log("");
+console.log('Flat = all dynamically reachable main-realm JS in one bundle.');
+console.log('Initial = sum of individually gzipped static entry/chunks with ESM splitting.');
+console.log('Worker URL assets are separate; neither measure includes them or HTTP headers.');

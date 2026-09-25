@@ -3,11 +3,13 @@
 
 const CH = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-const LOOKUP = (() => {
+let lookup: Int16Array | undefined;
+function base64Lookup(): Int16Array {
+  if (lookup) return lookup;
   const t = new Int16Array(256).fill(-1);
   for (let i = 0; i < CH.length; i++) t[CH.charCodeAt(i)] = i;
-  return t;
-})();
+  return lookup = t;
+}
 
 export function toBase64(bytes: Uint8Array): string {
   let out = "";
@@ -28,6 +30,7 @@ export function toBase64(bytes: Uint8Array): string {
 }
 
 export function fromBase64(input: string): Uint8Array {
+  const table = base64Lookup();
   // Strip whitespace (data URIs are sometimes wrapped).
   let s = "";
   for (let i = 0; i < input.length; i++) {
@@ -44,10 +47,10 @@ export function fromBase64(input: string): Uint8Array {
   const out = new Uint8Array(outLen > 0 ? outLen : 0);
   let o = 0;
   for (let i = 0; i < groups * 4; i += 4) {
-    const a = LOOKUP[s.charCodeAt(i)]!;
-    const b = LOOKUP[s.charCodeAt(i + 1)]!;
-    const c = LOOKUP[s.charCodeAt(i + 2)]!;
-    const d = LOOKUP[s.charCodeAt(i + 3)]!;
+    const a = table[s.charCodeAt(i)]!;
+    const b = table[s.charCodeAt(i + 1)]!;
+    const c = table[s.charCodeAt(i + 2)]!;
+    const d = table[s.charCodeAt(i + 3)]!;
     const n = (a << 18) | (b << 12) | ((c < 0 ? 0 : c) << 6) | (d < 0 ? 0 : d);
     if (o < outLen) out[o++] = (n >>> 16) & 0xff;
     if (o < outLen) out[o++] = (n >>> 8) & 0xff;
