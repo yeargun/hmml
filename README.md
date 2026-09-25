@@ -1,3 +1,5 @@
+
+
 <div align="center">
 
 # HMML
@@ -133,7 +135,7 @@ Use it from a plain `<script>` via CDN - exposes `window.HMML` (~3.7 KB gzip):
 ```
 
 > For the smallest payload, inline a decode-only build (~2 KB gzip) - that's what the
-> [landing page](https://hmml.pages.dev) does.
+> [landing page](https://hmml.eddocu.com) does.
 
 ## Security
 
